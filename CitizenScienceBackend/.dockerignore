@@ -1,0 +1,23 @@
+# Build e IDE
+target/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Git
+.git/
+.gitignore
+
+# File sensibili
+.env
+.env.local
+*.env.*
+
+# Documentazione
+*.md
+LICENSE
+
+# Docker (evita ricorsione)
+docker-compose.override.yml
+

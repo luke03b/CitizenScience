@@ -1,0 +1,60 @@
+# ═══════════════════════════════════════════════════════════════
+# Environment variables (NEVER commit!)
+# ═══════════════════════════════════════════════════════════════
+.env
+.env.local
+.env.*.local
+*.env.*
+!.env.example
+
+# ═══════════════════════════════════════════════════════════════
+# IDE
+# ═══════════════════════════════════════════════════════════════
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# ═══════════════════════════════════════════════════════════════
+# Backend - Java/Spring Boot
+# ═══════════════════════════════════════════════════════════════
+CitizenScienceBackend/target/
+CitizenScienceBackend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.log
+
+# ═══════════════════════════════════════════════════════════════
+# Frontend - Flutter
+# ═══════════════════════════════════════════════════════════════
+citizen_science/build/
+citizen_science/.dart_tool/
+citizen_science/.packages
+citizen_science/.pub-cache/
+citizen_science/.pub/
+citizen_science/pubspec.lock
+
+# Flutter platform-specific
+citizen_science/android/.gradle/
+citizen_science/android/local.properties
+citizen_science/android/**/GeneratedPluginRegistrant.*
+citizen_science/ios/Flutter/flutter_export_environment.sh
+citizen_science/ios/Flutter/Generated.xcconfig
+citizen_science/ios/Flutter/ephemeral/
+citizen_science/ios/Pods/
+citizen_science/macos/Flutter/ephemeral/
+citizen_science/linux/flutter/ephemeral/
+citizen_science/windows/flutter/ephemeral/
+
+# ═══════════════════════════════════════════════════════════════
+# Docker
+# ═══════════════════════════════════════════════════════════════
+docker-compose.override.yml
+
+# ═══════════════════════════════════════════════════════════════
+# OS
+# ═══════════════════════════════════════════════════════════════
+.DS_Store
+Thumbs.db

@@ -1,0 +1,28 @@
+# Build artifacts
+build/
+.dart_tool/
+.packages
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Platform specific (non servono per web)
+android/
+ios/
+macos/
+linux/
+windows/
+
+# Test e docs
+test/
+doc/
+
+# Git
+.git/
+.gitignore
+
+# Misc
+.metadata
+*.log

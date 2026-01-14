@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  citizen-science-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: citizen-science-pwa
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
