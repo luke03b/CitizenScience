@@ -11,6 +11,9 @@ COPY pubspec.yaml pubspec.lock* ./
 # Scarica le dipendenze
 RUN flutter pub get
 
+# Copia gli asset prima del resto del codice
+COPY assets/ ./assets/
+
 # Copia tutto il progetto
 COPY . .
 
