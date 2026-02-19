@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_locale.dart';
 import '../providers/app_state_provider.dart';
 import 'login_screen.dart';
 import 'main_layout_screen.dart';
 
+/// Initial splash screen displayed when the app launches.
+/// 
+/// Shows the app logo and a loading indicator while checking if the user
+/// can be automatically logged in via stored credentials.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -18,16 +24,23 @@ class _SplashScreenState extends State<SplashScreen> {
     _navigateToNextScreen();
   }
 
+  /// Waits for 2 seconds, checks auto-login status, then navigates to either
+  /// [MainLayoutScreen] or [LoginScreen] based on authentication state.
   Future<void> _navigateToNextScreen() async {
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
     final appState = Provider.of<AppStateProvider>(context, listen: false);
+    
+    // Check if user can auto-login
+    final isAutoLoggedIn = await appState.checkAutoLogin();
+
+    if (!mounted) return;
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => appState.isLoggedIn 
+        builder: (context) => isAutoLoggedIn
             ? const MainLayoutScreen() 
             : const LoginScreen(),
       ),
@@ -65,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 30),
             Text(
-              'Citizen Science',
+              AppLocale.citizenScience.getString(context),
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,

@@ -18,6 +18,6 @@ target/
 *.md
 LICENSE
 
-# Docker (evita ricorsione)
+# Docker
 docker-compose.override.yml
 

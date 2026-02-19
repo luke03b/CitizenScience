@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: pytorch_app
+    working_dir: /workspace
+    volumes:
+      - ./dataset:/workspace/dataset
+      - ./models:/workspace/models
+      - ./inference:/workspace/inference
+      - ./app:/workspace/app
+      - ./requirements.txt:/workspace/requirements.txt
+      - ./notebook.ipynb:/workspace/notebook.ipynb
+      - ./.env:/workspace/.env
+    ports:
+      - "8888:8888"
+    shm_size: "16g"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser"]

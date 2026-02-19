@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
+import '../providers/app_state_provider.dart';
+import '../dto/change_password_request.dart';
+import '../l10n/app_locale.dart';
+import '../utils/error_handler.dart';
 
+/// Screen for changing the user's password.
+/// 
+/// Requires the user to enter their old password, a new password,
+/// and confirm the new password. Validates that the new password
+/// is different from the old one and that both new password fields match.
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -24,28 +35,51 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
+  /// Validates form inputs and submits the password change request.
+  /// 
+  /// On success, navigates back to the settings screen with a success message.
+  /// On failure, displays an error message.
   Future<void> _handleChangePassword() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final appState = Provider.of<AppStateProvider>(context, listen: false);
+      final request = ChangePasswordRequest(
+        oldPassword: _oldPasswordController.text,
+        newPassword: _newPasswordController.text,
+      );
+      
+      await appState.apiService.changePassword(request);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    setState(() => _isLoading = false);
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocale.passwordChangedSuccess.getString(context)),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
 
-    // Show success message
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Password cambiata con successo'),
-        duration: Duration(seconds: 2),
-      ),
-    );
-
-    // Go back to settings
-    Navigator.of(context).pop();
+      // Go back to settings
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ErrorHandler.getErrorMessage(context, e)),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -54,7 +88,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cambio Password'),
+        title: Text(AppLocale.changePasswordTitle.getString(context)),
       ),
       body: SafeArea(
         child: Center(
@@ -75,14 +109,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Cambio Password',
+                          AppLocale.changePasswordTitle.getString(context),
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Inserisci la tua vecchia password e la nuova password',
+                          AppLocale.enterOldAndNew.getString(context),
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
@@ -90,13 +124,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         const SizedBox(height: 24),
                         CustomTextField(
                           controller: _oldPasswordController,
-                          label: 'Vecchia Password',
-                          hint: 'inserisci la tua vecchia password',
+                          label: AppLocale.oldPassword.getString(context),
+                          hint: AppLocale.enterOldPassword.getString(context),
                           isObscured: true,
                           prefixIcon: Icons.lock_outline,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Inserisci la tua vecchia password';
+                              return AppLocale.enterOldPassword.getString(context);
                             }
                             return null;
                           },
@@ -104,19 +138,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: _newPasswordController,
-                          label: 'Nuova Password',
-                          hint: 'inserisci la tua nuova password',
+                          label: AppLocale.newPassword.getString(context),
+                          hint: AppLocale.enterNewPassword.getString(context),
                           isObscured: true,
                           prefixIcon: Icons.lock,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Inserisci la tua nuova password';
+                              return AppLocale.enterNewPassword.getString(context);
                             }
                             if (value.length < 6) {
-                              return 'La password deve essere di almeno 6 caratteri';
+                              return AppLocale.passwordMinLength.getString(context);
                             }
                             if (value == _oldPasswordController.text) {
-                              return 'La nuova password deve essere diversa dalla vecchia';
+                              return AppLocale.newPasswordMustBeDifferent.getString(context);
                             }
                             return null;
                           },
@@ -124,23 +158,23 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: _confirmPasswordController,
-                          label: 'Conferma Nuova Password',
-                          hint: 'conferma la tua nuova password',
+                          label: AppLocale.passwordConfirmation.getString(context),
+                          hint: AppLocale.confirmPassword.getString(context),
                           isObscured: true,
                           prefixIcon: Icons.lock_clock,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Conferma la tua nuova password';
+                              return AppLocale.confirmPassword.getString(context);
                             }
                             if (value != _newPasswordController.text) {
-                              return 'Le password non corrispondono';
+                              return AppLocale.passwordsDontMatch.getString(context);
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 32),
                         CustomButton(
-                          text: 'Cambia Password',
+                          text: AppLocale.changePasswordTitle.getString(context),
                           onPressed: _handleChangePassword,
                           isLoading: _isLoading,
                           icon: Icons.check,

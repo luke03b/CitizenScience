@@ -6,7 +6,7 @@ services:
     image: postgis/postgis:16-3.4-alpine
     container_name: citizen-science-db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -35,12 +35,17 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+    volumes:
+      - sighting_images:/app/uploads/sightings
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
+    # restart: unless-stopped
     # healthcheck:
-    #   test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/actuator/health || exit 1"]
+    #   test: ["CMD-SHELL", "java -cp /app/resources:/app/classes:/app/libs/* org.springframework.boot.actuate.health.HealthEndpoint || exit 1"]
     #   interval: 5s
     #   timeout: 3s
     #   retries: 5
@@ -58,8 +63,24 @@ services:
       - "8081:80"
     # depends_on:
     #   backend:
-        # condition: service_healthy
-    restart: unless-stopped
+    #     condition: service_healthy
+    # restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════
+  # AI SERVICE - Python FastAPI
+  # ═══════════════════════════════════════════════════════════════
+  ai_service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    container_name: citizen-science-ai
+    ports:
+      - "8000:8000"
+    volumes:
+      - ai_models:/app/AiModels
+    # restart: unless-stopped
 
 volumes:
   postgres_data:
+  sighting_images:
+  ai_models:

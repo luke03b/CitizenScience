@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 
+/// A customizable text field widget with label and validation support.
+///
+/// This widget provides a consistent text input design with features like
+/// password visibility toggle, custom icons, validation, and keyboard types.
 class CustomTextField extends StatefulWidget {
+  /// Controller for managing the text field's content.
   final TextEditingController controller;
+  
+  /// The label text displayed above the text field.
   final String label;
+  
+  /// Placeholder text displayed when the field is empty.
   final String hint;
+  
+  /// Whether the text should be obscured (for password fields).
   final bool isObscured;
+  
+  /// The type of keyboard to display for text input.
   final TextInputType keyboardType;
+  
+  /// Optional icon displayed at the start of the text field.
   final IconData? prefixIcon;
+  
+  /// Optional validation function that returns an error message or null.
   final String? Function(String?)? validator;
+  
+  /// Whether the text field is enabled for user input.
   final bool isEnabled;
 
+  /// Creates a [CustomTextField] widget.
   const CustomTextField({
     super.key,
     required this.controller,

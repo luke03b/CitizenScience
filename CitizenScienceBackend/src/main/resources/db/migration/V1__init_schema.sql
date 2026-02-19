@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
--- CITIZEN SCIENCE - Schema Iniziale
+-- CITIZEN SCIENCE - Schema Completo
 -- ═══════════════════════════════════════════════════════════════
 
 -- ═══════════════════════════════════════════════════════════════
@@ -9,48 +9,64 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
 -- ═══════════════════════════════════════════════════════════════
--- TABELLA USERS - Utenti registrati
+-- TABELLA USERS
 -- ═══════════════════════════════════════════════════════════════
 
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(255) NOT NULL,
+    cognome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    username VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ruolo VARCHAR(50) NOT NULL CHECK (ruolo IN ('utente', 'ricercatore'))
 );
 
-CREATE INDEX idx_users_email ON users(email);
-
 -- ═══════════════════════════════════════════════════════════════
--- TABELLA SIGHTINGS - Avvistamenti fiori
+-- TABELLA AVVISTAMENTI
 -- ═══════════════════════════════════════════════════════════════
 
-CREATE TABLE sightings (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    flower_name VARCHAR(200) NOT NULL,
-    description TEXT,
-    location GEOMETRY(Point, 4326) NOT NULL,
-    sighting_date TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE avvistamenti (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nome VARCHAR(255) DEFAULT 'Avvistamento',
+    posizione GEOMETRY(Point, 4326),
+    latitudine DOUBLE PRECISION NOT NULL,
+    longitudine DOUBLE PRECISION NOT NULL,
+    data TIMESTAMP NOT NULL,
+    user_id UUID NOT NULL,
+    note TEXT,
+    indirizzo VARCHAR(500),
+    ai_model_used VARCHAR(255),
+    ai_confidence DOUBLE PRECISION,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_sightings_location ON sightings USING GIST(location);
-CREATE INDEX idx_sightings_user_id ON sightings(user_id);
-CREATE INDEX idx_sightings_date ON sightings(sighting_date DESC);
+CREATE INDEX idx_avvistamenti_posizione ON avvistamenti USING GIST(posizione);
+CREATE INDEX idx_avvistamenti_user ON avvistamenti(user_id);
+CREATE INDEX idx_avvistamenti_ai_model ON avvistamenti(ai_model_used);
 
 -- ═══════════════════════════════════════════════════════════════
--- TABELLA SIGHTING_PHOTOS - Foto degli avvistamenti
+-- TABELLA FOTO_AVVISTAMENTI
 -- ═══════════════════════════════════════════════════════════════
 
-CREATE TABLE sighting_photos (
-    id BIGSERIAL PRIMARY KEY,
-    sighting_id BIGINT NOT NULL REFERENCES sightings(id) ON DELETE CASCADE,
-    file_path VARCHAR(500) NOT NULL,
-    is_primary BOOLEAN NOT NULL DEFAULT FALSE,
-    uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE foto_avvistamenti (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    avvistamento_id UUID NOT NULL,
+    photo_path VARCHAR(500) NOT NULL,
+    CONSTRAINT fk_avvistamento FOREIGN KEY (avvistamento_id) REFERENCES avvistamenti(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_sighting_photos_sighting_id ON sighting_photos(sighting_id);
+CREATE INDEX idx_foto_avvistamento ON foto_avvistamenti(avvistamento_id);
+
+-- ═══════════════════════════════════════════════════════════════
+-- TABELLA AI_MODEL_SELECTION
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE ai_model_selection (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    model_name VARCHAR(255) NOT NULL,
+    selected_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    CONSTRAINT unique_user_model UNIQUE (user_id)
+);
+
+CREATE INDEX idx_ai_model_selection_user_id ON ai_model_selection(user_id);

@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import '../providers/app_state_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
+import '../l10n/app_locale.dart';
+import '../utils/error_handler.dart';
 import 'registration_screen.dart';
 import 'main_layout_screen.dart';
 
+/// Login screen for user authentication.
+/// 
+/// Provides email and password fields for users to sign in to their account.
+/// Includes validation and navigation to the registration screen for new users.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -26,26 +33,38 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /// Validates form inputs and attempts to log in the user.
+  /// 
+  /// On success, navigates to [MainLayoutScreen].
+  /// On failure, displays an error message via SnackBar.
   Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
 
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      final appState = Provider.of<AppStateProvider>(context, listen: false);
+      await appState.login(_emailController.text, _passwordController.text);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    final appState = Provider.of<AppStateProvider>(context, listen: false);
-    appState.login(_emailController.text, _passwordController.text);
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const MainLayoutScreen()),
-    );
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainLayoutScreen()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ErrorHandler.getErrorMessage(context, e)),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -76,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Citizen Science',
+                      AppLocale.citizenScience.getString(context),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         fontWeight: FontWeight.bold,
@@ -84,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Benvenuto! Accedi per continuare',
+                      AppLocale.welcomeLogin.getString(context),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
@@ -93,16 +112,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 48),
                     CustomTextField(
                       controller: _emailController,
-                      label: 'Email',
-                      hint: 'inserisci la tua email',
+                      label: AppLocale.email.getString(context),
+                      hint: AppLocale.enterEmail.getString(context),
                       keyboardType: TextInputType.emailAddress,
                       prefixIcon: Icons.email,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Inserisci la tua email';
+                          return AppLocale.enterEmail.getString(context);
                         }
                         if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                          return 'Inserisci un\'email valida';
+                          return AppLocale.enterValidEmail.getString(context);
                         }
                         return null;
                       },
@@ -110,23 +129,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     CustomTextField(
                       controller: _passwordController,
-                      label: 'Password',
-                      hint: 'inserisci la tua password',
+                      label: AppLocale.password.getString(context),
+                      hint: AppLocale.enterPassword.getString(context),
                       isObscured: true,
                       prefixIcon: Icons.lock,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Inserisci la tua password';
+                          return AppLocale.enterPassword.getString(context);
                         }
                         if (value.length < 6) {
-                          return 'La password deve essere di almeno 6 caratteri';
+                          return AppLocale.passwordMinLength.getString(context);
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 32),
                     CustomButton(
-                      text: 'Accedi',
+                      text: AppLocale.login.getString(context),
                       onPressed: _handleLogin,
                       isLoading: _isLoading,
                       icon: Icons.login,
@@ -136,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Non hai un account? ',
+                          AppLocale.noAccount.getString(context),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         TextButton(
@@ -147,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             );
                           },
-                          child: const Text('Registrati'),
+                          child: Text(AppLocale.register.getString(context)),
                         ),
                       ],
                     ),

@@ -1,13 +1,29 @@
 import 'package:flutter/material.dart';
 
+/// A customizable button widget with loading and outlined styles.
+///
+/// This widget supports both elevated and outlined button styles,
+/// optional icons, loading states, and custom colors.
 class CustomButton extends StatelessWidget {
+  /// The text displayed on the button.
   final String text;
+  
+  /// Callback function executed when the button is pressed.
   final VoidCallback onPressed;
+  
+  /// Whether the button is in a loading state, showing a progress indicator.
   final bool isLoading;
+  
+  /// Whether to use an outlined style instead of elevated.
   final bool isOutlined;
+  
+  /// Optional icon displayed before the text.
   final IconData? icon;
+  
+  /// Optional custom background color for the button.
   final Color? color;
 
+  /// Creates a [CustomButton] widget.
   const CustomButton({
     super.key,
     required this.text,
@@ -47,6 +63,10 @@ class CustomButton extends StatelessWidget {
     );
   }
 
+  /// Builds the child content of the button.
+  ///
+  /// Returns a loading indicator if [isLoading] is true,
+  /// otherwise returns the text with an optional icon.
   Widget _buildChild() {
     if (isLoading) {
       return const SizedBox(

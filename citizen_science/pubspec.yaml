@@ -1,5 +1,5 @@
 name: citizen_science
-description: "A new Flutter project."
+description: "A web-only Flutter application for citizen science. Designed as a Progressive Web App (PWA) with offline caching support via IndexedDB."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -35,13 +35,18 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   http: ^1.6.0
-  provider: ^6.1.2
-  shared_preferences: ^2.3.3
-  image_picker: ^1.1.2
+  http_parser: ^4.1.2
+  provider: ^6.1.5+1
+  shared_preferences: ^2.5.4
+  image_picker: ^1.2.1
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
   geolocator: ^14.0.2
   flutter_map_marker_cluster: ^8.2.2
+  jwt_decoder: ^2.0.1
+  connectivity_plus: ^7.0.0
+  idb_shim: ^2.8.2+2
+  flutter_localization: ^0.3.3
 
 dev_dependencies:
   flutter_test:

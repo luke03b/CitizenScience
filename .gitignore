@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-# Environment variables (NEVER commit!)
+# Environment variables
 # ═══════════════════════════════════════════════════════════════
 .env
 .env.local
@@ -15,16 +15,63 @@
 *.iml
 *.ipr
 *.iws
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
 
 # ═══════════════════════════════════════════════════════════════
 # Backend - Java/Spring Boot
 # ═══════════════════════════════════════════════════════════════
 CitizenScienceBackend/target/
 CitizenScienceBackend/.mvn/wrapper/maven-wrapper.jar
+CitizenScienceBackend/out/
+CitizenScienceBackend/.classpath
+CitizenScienceBackend/.project
+CitizenScienceBackend/.settings/
 *.class
 *.jar
 *.war
 *.log
+*.log.*
+
+# ═══════════════════════════════════════════════════════════════
+# AI Service - Python
+# ═══════════════════════════════════════════════════════════════
+ai_service/__pycache__/
+ai_service/**/__pycache__/
+ai_service/*.pyc
+ai_service/**/*.pyc
+ai_service/*.pyo
+ai_service/**/*.pyo
+ai_service/*.pyd
+ai_service/**/*.pyd
+ai_service/.Python
+ai_service/venv/
+ai_service/.venv/
+ai_service/env/
+ai_service/.env
+ai_service/build/
+ai_service/develop-eggs/
+ai_service/dist/
+ai_service/downloads/
+ai_service/eggs/
+ai_service/.eggs/
+ai_service/lib/
+ai_service/lib64/
+ai_service/parts/
+ai_service/sdist/
+ai_service/var/
+ai_service/wheels/
+ai_service/pip-wheel-metadata/
+ai_service/.pytest_cache/
+ai_service/.coverage
+ai_service/htmlcov/
+ai_service/*.egg-info/
+ai_service/.ipynb_checkpoints/
+ai_service/**/.ipynb_checkpoints/
+ai_service/*.ipynb_checkpoints/
 
 # ═══════════════════════════════════════════════════════════════
 # Frontend - Flutter
@@ -40,21 +87,30 @@ citizen_science/pubspec.lock
 citizen_science/android/.gradle/
 citizen_science/android/local.properties
 citizen_science/android/**/GeneratedPluginRegistrant.*
+citizen_science/android/app/debug/
+citizen_science/android/app/profile/
+citizen_science/android/app/release/
 citizen_science/ios/Flutter/flutter_export_environment.sh
 citizen_science/ios/Flutter/Generated.xcconfig
 citizen_science/ios/Flutter/ephemeral/
 citizen_science/ios/Pods/
+citizen_science/ios/.symlinks/
+citizen_science/ios/.dart_tool/
 citizen_science/macos/Flutter/ephemeral/
 citizen_science/linux/flutter/ephemeral/
 citizen_science/windows/flutter/ephemeral/
+citizen_science/web/canvaskit/
 
 # ═══════════════════════════════════════════════════════════════
 # Docker
 # ═══════════════════════════════════════════════════════════════
 docker-compose.override.yml
+.dockerignore
 
 # ═══════════════════════════════════════════════════════════════
 # OS
 # ═══════════════════════════════════════════════════════════════
 .DS_Store
 Thumbs.db
+*.bak
+*.tmp

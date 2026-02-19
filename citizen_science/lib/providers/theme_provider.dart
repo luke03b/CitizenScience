@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// Provider managing application theme (light/dark mode).
+/// 
+/// Notifies listeners when theme is toggled between light and dark modes.
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = false;
 
   bool get isDarkMode => _isDarkMode;
 
+  /// Returns the current theme data based on dark mode state.
   ThemeData get currentTheme => _isDarkMode ? _darkTheme : _lightTheme;
 
+  /// Toggles between light and dark theme.
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
     notifyListeners();

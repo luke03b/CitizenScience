@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import '../providers/app_state_provider.dart';
 import '../providers/theme_provider.dart';
+import '../providers/locale_provider.dart';
+import '../l10n/app_locale.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
+import '../utils/error_handler.dart';
 import 'login_screen.dart';
 import 'change_password_screen.dart';
+import 'ai_model_selection_screen.dart';
 
+/// Settings screen for user profile and app preferences management.
+/// 
+/// Allows users to edit their profile information, toggle dark mode,
+/// change password, and log out. Researchers have an additional option
+/// to select AI models.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -20,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _lastNameController;
   late TextEditingController _emailController;
   bool _isEditing = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -38,6 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  /// Toggles edit mode and resets form fields on cancel.
   void _toggleEdit() {
     setState(() {
       _isEditing = !_isEditing;
@@ -51,50 +63,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  void _saveChanges() {
+  /// Validates and saves user profile changes to the backend.
+  /// 
+  /// On success, exits edit mode and shows a success message.
+  /// On failure, displays an error message.
+  Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final appState = Provider.of<AppStateProvider>(context, listen: false);
-    appState.updateUserInfo(
-      _firstNameController.text,
-      _lastNameController.text,
-      _emailController.text,
-    );
+    setState(() => _isLoading = true);
 
-    setState(() {
-      _isEditing = false;
-    });
+    try {
+      final appState = Provider.of<AppStateProvider>(context, listen: false);
+      await appState.updateUserInfoApi(
+        _firstNameController.text,
+        _lastNameController.text,
+        _emailController.text,
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Informazioni aggiornate con successo'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+      if (!mounted) return;
+
+      setState(() {
+        _isEditing = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocale.infoUpdatedSuccess.getString(context)),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ErrorHandler.getErrorMessage(context, e)),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
+  /// Shows a confirmation dialog and logs out the user.
+  /// 
+  /// On confirmation, clears the navigation stack and returns to login screen.
   void _handleLogout() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Conferma Logout'),
-        content: const Text('Sei sicuro di voler uscire?'),
+        title: Text(AppLocale.confirmLogout.getString(context)),
+        content: Text(AppLocale.confirmLogoutMessage.getString(context)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annulla'),
+            child: Text(AppLocale.cancel.getString(context)),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop(); // Close dialog
               final appState = Provider.of<AppStateProvider>(context, listen: false);
-              appState.logout();
+              await appState.logout();
+              if (!mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
                 (route) => false,
               );
             },
-            child: const Text('Esci'),
+            child: Text(AppLocale.exit.getString(context)),
           ),
         ],
       ),
@@ -130,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Informazioni Utente',
+                              AppLocale.userInfo.getString(context),
                               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -139,20 +179,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               IconButton(
                                 onPressed: _toggleEdit,
                                 icon: const Icon(Icons.edit),
-                                tooltip: 'Modifica',
+                                tooltip: AppLocale.edit.getString(context),
                               ),
                           ],
                         ),
                         const SizedBox(height: 24),
                         CustomTextField(
                           controller: _firstNameController,
-                          label: 'Nome',
-                          hint: 'Il tuo nome',
+                          label: AppLocale.firstName.getString(context),
+                          hint: AppLocale.yourFirstName.getString(context),
                           prefixIcon: Icons.person,
                           isEnabled: _isEditing,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Inserisci il tuo nome';
+                              return AppLocale.enterFirstName.getString(context);
                             }
                             return null;
                           },
@@ -160,13 +200,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: _lastNameController,
-                          label: 'Cognome',
-                          hint: 'Il tuo cognome',
+                          label: AppLocale.lastName.getString(context),
+                          hint: AppLocale.yourLastName.getString(context),
                           prefixIcon: Icons.person_outline,
                           isEnabled: _isEditing,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Inserisci il tuo cognome';
+                              return AppLocale.enterLastName.getString(context);
                             }
                             return null;
                           },
@@ -174,17 +214,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: _emailController,
-                          label: 'Email',
-                          hint: 'La tua email',
+                          label: AppLocale.email.getString(context),
+                          hint: AppLocale.yourEmail.getString(context),
                           keyboardType: TextInputType.emailAddress,
                           prefixIcon: Icons.email,
                           isEnabled: _isEditing,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Inserisci la tua email';
+                              return AppLocale.enterEmail.getString(context);
                             }
                             if (!value.contains('@')) {
-                              return 'Inserisci un\'email valida';
+                              return AppLocale.enterValidEmail.getString(context);
                             }
                             return null;
                           },
@@ -196,13 +236,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               TextButton(
                                 onPressed: _toggleEdit,
-                                child: const Text('Annulla'),
+                                child: Text(AppLocale.cancel.getString(context)),
                               ),
                               const SizedBox(width: 8),
                               FilledButton.icon(
-                                onPressed: _saveChanges,
-                                icon: const Icon(Icons.save),
-                                label: const Text('Salva'),
+                                onPressed: _isLoading ? null : _saveChanges,
+                                icon: _isLoading
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Icon(Icons.save),
+                                label: Text(AppLocale.save.getString(context)),
                               ),
                             ],
                           ),
@@ -215,7 +264,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               const SizedBox(height: 24),
 
-              // Dark mode toggle
+              // Dark mode toggle and language selector
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -227,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Aspetto',
+                        AppLocale.appearance.getString(context),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -236,14 +285,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Consumer<ThemeProvider>(
                         builder: (context, themeProvider, child) {
                           return SwitchListTile(
-                            title: const Text('Modalità Scura'),
-                            subtitle: const Text('Attiva/disattiva il tema scuro'),
+                            title: Text(
+                              AppLocale.darkMode.getString(context),
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            subtitle: Text(
+                              AppLocale.toggleDarkMode.getString(context), 
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
                             value: themeProvider.isDarkMode,
                             onChanged: (value) {
                               themeProvider.toggleTheme();
                             },
                             secondary: Icon(
                               themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          );
+                        },
+                      ),
+                      const Divider(),
+                      Consumer<LocaleProvider>(
+                        builder: (context, localeProvider, child) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.language,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        AppLocale.language.getString(context),
+                                        style: Theme.of(context).textTheme.bodyLarge,
+                                      ),
+                                      Text(
+                                        AppLocale.selectLanguage.getString(context),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                                    ),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: localeProvider.locale.languageCode,
+                                    underline: const SizedBox(),
+                                    isDense: true,
+                                    borderRadius: BorderRadius.circular(12),
+                                    items: [
+                                      DropdownMenuItem(
+                                        value: 'it',
+                                        child: Text(
+                                          AppLocale.italian.getString(context),
+                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'en',
+                                        child: Text(
+                                          AppLocale.english.getString(context),
+                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        localeProvider.setLocale(Locale(newValue));
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -254,6 +388,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               const SizedBox(height: 24),
+
+              // AI Model Selection (only for researchers)
+              Consumer<AppStateProvider>(
+                builder: (context, appState, child) {
+                  if (appState.currentUser?.isResearcher != true) {
+                    return const SizedBox.shrink();
+                  }
+                  
+                  return Column(
+                    children: [
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const AiModelSelectionScreen(),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.smart_toy,
+                                  size: 32,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        AppLocale.selectAiModel.getString(context),
+                                        style: Theme.of(context).textTheme.bodyLarge,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        AppLocale.configureAiModel.getString(context),
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 16,
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  );
+                },
+              ),
 
               // Logout button
               Card(
@@ -267,14 +468,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Account',
+                        AppLocale.account.getString(context),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 16),
                       CustomButton(
-                        text: 'Cambio Password',
+                        text: AppLocale.changePassword.getString(context),
                         icon: Icons.lock_reset,
                         onPressed: () {
                           Navigator.of(context).push(
@@ -287,7 +488,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 12),
                       CustomButton(
-                        text: 'Logout',
+                        text: AppLocale.logout.getString(context),
                         icon: Icons.logout,
                         onPressed: _handleLogout,
                         isOutlined: false,

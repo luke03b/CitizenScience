@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import '../models/sighting_model.dart';
 import 'placeholder_image.dart';
 
+/// A card widget displaying a summary of a sighting.
+///
+/// Shows the sighting's primary image, flower name, location, and date
+/// in a tappable card format. Used in lists and grids of sightings.
 class SightingCard extends StatelessWidget {
+  /// The sighting data to display in the card.
   final SightingModel sighting;
+  
+  /// Callback function executed when the card is tapped.
   final VoidCallback onTap;
 
+  /// Creates a [SightingCard] widget.
   const SightingCard({
     super.key,
     required this.sighting,
@@ -25,7 +33,6 @@ class SightingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image with fixed aspect ratio
             AspectRatio(
               aspectRatio: 16 / 9,
               child: sighting.firstImage.isNotEmpty
@@ -46,7 +53,7 @@ class SightingCard extends StatelessWidget {
                     )
                   : const PlaceholderImage(),
             ),
-            // Details - Fixed height
+
             SizedBox(
               height: 112,
               child: Padding(
