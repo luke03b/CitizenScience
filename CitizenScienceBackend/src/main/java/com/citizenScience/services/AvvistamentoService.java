@@ -70,20 +70,22 @@ public class AvvistamentoService {
 
     /**
      * Creates a new sighting with photos, location, and AI flower identification.
-     * 
+     *
      * @param user the user creating the sighting
      * @param photos array of photo files (at least one required)
      * @param data the date and time of the sighting
      * @param latitudine the latitude coordinate
      * @param longitudine the longitude coordinate
      * @param note optional notes about the sighting
+     * @param aiModelOverride optional AI model name to use instead of the user's default selection
      * @return AvvistamentoResponse containing the created sighting details
      * @throws IllegalArgumentException if no photos provided or invalid files
      * @throws IOException if photo storage fails
      */
     @Transactional
     public AvvistamentoResponse createAvvistamento(User user, MultipartFile[] photos, LocalDateTime data,
-                                                    Double latitudine, Double longitudine, String note) throws IOException {
+                                                    Double latitudine, Double longitudine, String note,
+                                                    String aiModelOverride) throws IOException {
         if (photos == null || photos.length == 0) {
             throw new IllegalArgumentException("At least one photo is required for creating a sighting");
         }
@@ -98,7 +100,7 @@ public class AvvistamentoService {
         Double aiConfidence = null;
         
         try {
-            var identificationResult = aiService.identifyFlower(photos[0], user);
+            var identificationResult = aiService.identifyFlower(photos[0], user, aiModelOverride);
             flowerName = identificationResult.getFlowerName();
             aiModelUsed = identificationResult.getModelUsed();
             aiConfidence = identificationResult.getConfidence();

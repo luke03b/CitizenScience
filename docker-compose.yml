@@ -1,3 +1,9 @@
+x-ai-healthcheck-base: &ai-healthcheck-base
+  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+
 services:
   # ═══════════════════════════════════════════════════════════════
   # DATABASE - PostgreSQL con PostGIS
@@ -38,10 +44,15 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - AI_CONTAINERS=${AI_CONTAINERS:-ai_service,ai_service_placeholder}
     volumes:
       - sighting_images:/app/uploads/sightings
     depends_on:
       postgres:
+        condition: service_healthy
+      ai_service:
+        condition: service_healthy
+      ai_service_placeholder:
         condition: service_healthy
     # restart: unless-stopped
     # healthcheck:
@@ -79,6 +90,24 @@ services:
     volumes:
       - ai_models:/app/AiModels
     # restart: unless-stopped
+    healthcheck:
+      <<: *ai-healthcheck-base
+      start_period: 30s
+
+  # ═══════════════════════════════════════════════════════════════
+  # AI SERVICE PLACEHOLDER - Python FastAPI (placeholder for testing)
+  # ═══════════════════════════════════════════════════════════════
+  ai_service_placeholder:
+    build:
+      context: ./ai_service_placeholder
+      dockerfile: Dockerfile
+    container_name: citizen-science-ai-placeholder
+    ports:
+      - "8002:8000"
+    # restart: unless-stopped
+    healthcheck:
+      <<: *ai-healthcheck-base
+      start_period: 10s
 
 volumes:
   postgres_data:

@@ -11,8 +11,19 @@ import '../utils/error_handler.dart';
 /// Fetches available models from the backend and allows researchers to
 /// choose which model should be used for AI-powered flower identification.
 /// This screen is only accessible to users with researcher privileges.
+/// 
+/// When [onModelSelected] is provided the screen operates in "pick" mode:
+/// confirming a selection calls the callback with the chosen model name and
+/// pops the route WITHOUT persisting the choice as the user's default.
+/// When [onModelSelected] is null (the default) the screen operates in
+/// "save default" mode and behaves exactly as before.
 class AiModelSelectionScreen extends StatefulWidget {
-  const AiModelSelectionScreen({super.key});
+  /// Optional callback used when the screen is opened from the sighting
+  /// creation flow.  Receives the chosen model name and is called instead
+  /// of persisting the selection to the backend.
+  final void Function(String modelName)? onModelSelected;
+
+  const AiModelSelectionScreen({super.key, this.onModelSelected});
 
   @override
   State<AiModelSelectionScreen> createState() => _AiModelSelectionScreenState();
@@ -70,11 +81,12 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
     }
   }
 
-  /// Saves the selected AI model to the backend.
-  /// 
-  /// Validates that a model is selected before submitting.
-  /// On success, navigates back to the settings screen.
-  /// On failure, displays an error message.
+  /// Confirms the selected AI model.
+  ///
+  /// In "save default" mode (no [onModelSelected] callback) the choice is
+  /// persisted to the backend and the screen pops.
+  /// In "pick" mode (callback provided) the callback is invoked with the
+  /// chosen model name and the screen pops WITHOUT touching the user's default.
   Future<void> _saveModel() async {
     if (_isSaving) return;
     if (_selectedModel == null) {
@@ -87,6 +99,14 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
       return;
     }
 
+    // "Pick" mode – return the selected model to the caller without saving.
+    if (widget.onModelSelected != null) {
+      widget.onModelSelected!(_selectedModel!);
+      if (mounted) Navigator.of(context).pop();
+      return;
+    }
+
+    // "Save default" mode – persist the selection to the backend.
     setState(() => _isSaving = true);
 
     try {

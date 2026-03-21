@@ -11,11 +11,14 @@ import '../utils/location_utils.dart';
 import '../utils/validation_utils.dart';
 import '../utils/error_handler.dart';
 import '../l10n/app_locale.dart';
+import 'ai_model_selection_screen.dart';
 
 /// Screen for creating a new sighting with photos and location.
 /// 
 /// Allows users to capture or select photos, set location via GPS or map,
 /// add notes, and submit the sighting to the backend.
+/// Researchers can additionally override the AI model used for identification
+/// for this specific sighting without changing their default model setting.
 class CreateSightingScreen extends StatefulWidget {
   const CreateSightingScreen({super.key});
 
@@ -34,11 +37,14 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
   bool _locationLoading = false;
+  String? _selectedAiModel;
+  bool _isLoadingModel = false;
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _loadDefaultAiModel();
   }
 
   @override
@@ -47,6 +53,41 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
     _latitudeController.dispose();
     _longitudeController.dispose();
     super.dispose();
+  }
+
+  /// Loads the researcher's currently selected default AI model from the backend.
+  /// Only executed for users with the researcher role.
+  Future<void> _loadDefaultAiModel() async {
+    final appState = Provider.of<AppStateProvider>(context, listen: false);
+    if (appState.currentUser?.isResearcher != true) return;
+
+    setState(() => _isLoadingModel = true);
+    try {
+      final model = await appState.apiService.getSelectedAiModel();
+      if (mounted) {
+        setState(() => _selectedAiModel = model);
+      }
+    } catch (e) {
+      // Non-critical – if we can't fetch the default model we fall back to
+      // the backend's own default selection for this user.
+      debugPrint('Could not load default AI model: $e');
+    } finally {
+      if (mounted) setState(() => _isLoadingModel = false);
+    }
+  }
+
+  /// Opens the AI model selection screen so the researcher can pick a different
+  /// model for this sighting only.  The choice is NOT saved as the new default.
+  Future<void> _changeAiModel() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => AiModelSelectionScreen(
+          onModelSelected: (modelName) {
+            setState(() => _selectedAiModel = modelName);
+          },
+        ),
+      ),
+    );
   }
 
   /// Fetches the current GPS location and updates the text fields.
@@ -207,6 +248,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
         latitude: lat,
         longitude: lng,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        aiModel: _selectedAiModel,
       );
 
       if (!mounted) return;
@@ -444,7 +486,36 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
             hint: AppLocale.addNotes.getString(context),
             prefixIcon: Icons.notes,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
+
+          // AI model selection (researchers only)
+          Consumer<AppStateProvider>(
+            builder: (context, appState, _) {
+              if (appState.currentUser?.isResearcher != true) {
+                return const SizedBox.shrink();
+              }
+              final modelLabel = _isLoadingModel
+                  ? AppLocale.loading.getString(context)
+                  : (_selectedAiModel ?? AppLocale.useDefaultModel.getString(context));
+              return Column(
+                children: [
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                    leading: const Icon(Icons.smart_toy),
+                    title: Text(AppLocale.aiModelForThisSighting.getString(context)),
+                    subtitle: Text(modelLabel),
+                    trailing: const Icon(Icons.edit),
+                    onTap: _isLoadingModel ? null : _changeAiModel,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Theme.of(context).dividerColor),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              );
+            },
+          ),
           
           CustomButton(
             text: AppLocale.createSighting.getString(context),

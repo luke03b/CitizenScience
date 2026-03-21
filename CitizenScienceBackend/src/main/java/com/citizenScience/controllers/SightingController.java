@@ -57,6 +57,8 @@ public class SightingController {
      * @param latitudine the latitude coordinate
      * @param longitudine the longitude coordinate
      * @param note optional notes about the sighting
+     * @param aiModel optional AI model name to use for identification; overrides the user's default
+     *                selection for this sighting only
      * @return ResponseEntity containing the created sighting details
      * @throws IOException if photo processing fails
      */
@@ -73,10 +75,11 @@ public class SightingController {
             @Parameter(description = "Date and time of the sighting", required = true) @RequestParam("data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime data,
             @Parameter(description = "Latitude coordinate", required = true) @RequestParam("latitudine") Double latitudine,
             @Parameter(description = "Longitude coordinate", required = true) @RequestParam("longitudine") Double longitudine,
-            @Parameter(description = "Optional notes about the sighting") @RequestParam(value = "note", required = false) String note) throws IOException {
+            @Parameter(description = "Optional notes about the sighting") @RequestParam(value = "note", required = false) String note,
+            @Parameter(description = "Optional AI model override for this sighting only") @RequestParam(value = "aiModel", required = false) String aiModel) throws IOException {
         
         AvvistamentoResponse response = avvistamentoService.createAvvistamento(
-                user, photos, data, latitudine, longitudine, note);
+                user, photos, data, latitudine, longitudine, note, aiModel);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

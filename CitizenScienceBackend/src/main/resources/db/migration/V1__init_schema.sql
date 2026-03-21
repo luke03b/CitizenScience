@@ -70,3 +70,18 @@ CREATE TABLE ai_model_selection (
 );
 
 CREATE INDEX idx_ai_model_selection_user_id ON ai_model_selection(user_id);
+
+-- ═══════════════════════════════════════════════════════════════
+-- AI_CONTAINER_MODELS - Model-to-container registry
+-- Populated by the force-scan endpoint; maps each AI model to
+-- the container that hosts it.
+-- ═══════════════════════════════════════════════════════════════
+
+CREATE TABLE ai_container_models (
+    id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    model_name     VARCHAR(255) NOT NULL UNIQUE,
+    container_name VARCHAR(255) NOT NULL,
+    discovered_at  TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX idx_ai_container_models_container_name ON ai_container_models (container_name);

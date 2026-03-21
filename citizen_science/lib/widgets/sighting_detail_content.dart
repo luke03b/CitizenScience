@@ -169,7 +169,7 @@ class SightingDetailSidePanel extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    'Dettagli Avvistamento',
+                    AppLocale.sightingDetails.getString(context),
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),

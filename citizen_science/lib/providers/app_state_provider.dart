@@ -385,12 +385,15 @@ class AppStateProvider extends ChangeNotifier {
   /// Creates a new sighting, either online or offline.
   /// 
   /// If online, uploads immediately. If offline, saves to pending queue.
+  /// When [aiModel] is provided it is sent to the backend as an override for
+  /// this sighting only and does NOT change the user's default model selection.
   Future<void> createSighting({
     required List<XFile> photos,
     required DateTime date,
     required double latitude,
     required double longitude,
     String? notes,
+    String? aiModel,
   }) async {
     if (_isOnline) {
       // Try to create online
@@ -401,6 +404,7 @@ class AppStateProvider extends ChangeNotifier {
           latitudine: latitude,
           longitudine: longitude,
           note: notes,
+          aiModel: aiModel,
         );
         return;
       } catch (e) {

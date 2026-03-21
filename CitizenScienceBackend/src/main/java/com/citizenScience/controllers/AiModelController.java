@@ -19,7 +19,9 @@ import java.util.Map;
 
 /**
  * REST controller for managing AI model selection.
- * Provides endpoints for researchers to view available AI models and select their preferred model.
+ * Provides endpoints for researchers to view available AI models,
+ * trigger a force-scan of all configured AI containers, and
+ * select their preferred model.
  */
 @RestController
 @RequestMapping("/api/ai")
@@ -43,14 +45,19 @@ public class AiModelController {
     }
 
     /**
-     * Retrieves the list of available AI models.
+     * Returns the list of AI models currently registered in the database.
      * Only accessible to users with researcher role.
-     * 
+     *
+     * <p>The list is populated by calling {@code POST /api/ai/scan}. If no scan
+     * has been performed yet the list will be empty.
+     *
      * @param user the authenticated user
      * @return ResponseEntity containing the list of available models or an error if user is not a researcher
      */
     @GetMapping("/models")
-    @Operation(summary = "Get available AI models", description = "Retrieves list of available AI models (researchers only)")
+    @Operation(summary = "Get available AI models",
+               description = "Returns AI models registered in the database (researchers only). "
+                           + "Call POST /api/ai/scan first to populate the list.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved models list"),
         @ApiResponse(responseCode = "401", description = "User not authenticated"),
@@ -64,6 +71,35 @@ public class AiModelController {
 
         List<String> models = aiService.getAvailableModels();
         return ResponseEntity.ok(Map.of("models", models));
+    }
+
+    /**
+     * Triggers a force scan of all configured AI containers.
+     * Each container in the {@code ai.containers} configuration list is queried via
+     * its {@code /models} endpoint; the results are persisted in the
+     * {@code ai_container_models} database table, replacing any stale entries.
+     * Only accessible to users with researcher role.
+     *
+     * @param user the authenticated user
+     * @return ResponseEntity containing a map of container name → discovered model list
+     */
+    @PostMapping("/scan")
+    @Operation(summary = "Force scan AI containers",
+               description = "Queries all configured AI containers for available models and "
+                           + "updates the database registry (researchers only).")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Scan completed successfully"),
+        @ApiResponse(responseCode = "401", description = "User not authenticated"),
+        @ApiResponse(responseCode = "403", description = "User is not a researcher")
+    })
+    public ResponseEntity<?> forceScanModels(@AuthenticationPrincipal User user) {
+        if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Only researchers can trigger a model scan"));
+        }
+
+        Map<String, List<String>> scanResult = aiService.forceScanModels();
+        return ResponseEntity.ok(Map.of("scannedContainers", scanResult));
     }
 
     /**

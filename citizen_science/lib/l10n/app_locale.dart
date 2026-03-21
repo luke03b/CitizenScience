@@ -198,6 +198,8 @@ class AppLocale {
   static const modelSelectedSuccess = 'modelSelectedSuccess';
   static const modelSelectionError = 'modelSelectionError';
   static const noModelsAvailable = 'noModelsAvailable';
+  static const aiModelForThisSighting = 'aiModelForThisSighting';
+  static const useDefaultModel = 'useDefaultModel';
 
   // Error Messages
   static const errorNetworkConnection = 'errorNetworkConnection';
@@ -411,6 +413,8 @@ class LocaleData {
     AppLocale.modelSelectedSuccess: 'Modello selezionato con successo',
     AppLocale.modelSelectionError: 'Errore nella selezione del modello',
     AppLocale.noModelsAvailable: 'Nessun modello disponibile',
+    AppLocale.aiModelForThisSighting: 'Modello AI per questo avvistamento',
+    AppLocale.useDefaultModel: 'Predefinito',
 
     // Error Messages
     AppLocale.errorNetworkConnection: 'Impossibile connettersi al server. Verifica la tua connessione Internet.',
@@ -465,7 +469,7 @@ class LocaleData {
     AppLocale.citizenScience: 'Citizen Science',
     AppLocale.welcomeLogin: 'Welcome! Log in to continue',
     AppLocale.password: 'Password',
-    AppLocale.enterPassword: 'enter your password',
+    AppLocale.enterPassword: 'Enter your password',
     AppLocale.passwordMinLength: 'Password must be at least 6 characters',
     AppLocale.login: 'Login',
     AppLocale.noAccount: 'Don\'t have an account? ',
@@ -476,7 +480,7 @@ class LocaleData {
     AppLocale.registration: 'Registration',
     AppLocale.createAccount: 'Create your account',
     AppLocale.passwordConfirmation: 'Password Confirmation',
-    AppLocale.confirmPassword: 'confirm password',
+    AppLocale.confirmPassword: 'Confirm Password',
     AppLocale.passwordsDontMatch: 'Passwords do not match',
     AppLocale.iAmResearcher: 'I am a researcher',
     AppLocale.alreadyHaveAccount: 'Already have an account? ',
@@ -492,9 +496,9 @@ class LocaleData {
     AppLocale.changePasswordTitle: 'Change Password',
     AppLocale.enterOldAndNew: 'Enter your old password and new password',
     AppLocale.oldPassword: 'Old Password',
-    AppLocale.enterOldPassword: 'enter your old password',
+    AppLocale.enterOldPassword: 'Enter your old password',
     AppLocale.newPassword: 'New Password',
-    AppLocale.enterNewPassword: 'enter new password',
+    AppLocale.enterNewPassword: 'Enter new password',
     AppLocale.passwordChangedSuccess: 'Password changed successfully',
     AppLocale.passwordChangeError: 'Error changing password',
     AppLocale.newPasswordMustBeDifferent: 'New password must be different from old password',
@@ -618,6 +622,8 @@ class LocaleData {
     AppLocale.modelSelectedSuccess: 'Model selected successfully',
     AppLocale.modelSelectionError: 'Error selecting model',
     AppLocale.noModelsAvailable: 'No models available',
+    AppLocale.aiModelForThisSighting: 'AI model for this sighting',
+    AppLocale.useDefaultModel: 'Default',
 
     // Error Messages
     AppLocale.errorNetworkConnection: 'Unable to connect to the server. Please check your Internet connection.',

@@ -114,3 +114,11 @@ docker-compose.override.yml
 Thumbs.db
 *.bak
 *.tmp
+
+# ═══════════════════════════════════════════════════════════════
+# AI Service Placeholder - Python
+# ═══════════════════════════════════════════════════════════════
+ai_service_placeholder/__pycache__/
+ai_service_placeholder/**/__pycache__/
+ai_service_placeholder/*.pyc
+ai_service_placeholder/**/*.pyc

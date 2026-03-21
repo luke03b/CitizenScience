@@ -167,6 +167,8 @@ class ApiService {
   /// Creates a new sighting with photos and location data.
   /// 
   /// Uploads [photos] along with sighting metadata.
+  /// When [aiModel] is provided it is sent to the backend as an override for
+  /// this sighting only and does NOT change the user's default model selection.
   /// Returns the created [SightingResponse] or throws an [Exception] if creation fails.
   Future<SightingResponse> createSighting({
     required List<XFile> photos,
@@ -174,6 +176,7 @@ class ApiService {
     required double latitudine,
     required double longitudine,
     String? note,
+    String? aiModel,
   }) async {
     final request = http.MultipartRequest(
       'POST',
@@ -216,6 +219,9 @@ class ApiService {
     request.fields['longitudine'] = longitudine.toString();
     if (note != null && note.isNotEmpty) {
       request.fields['note'] = note;
+    }
+    if (aiModel != null && aiModel.isNotEmpty) {
+      request.fields['aiModel'] = aiModel;
     }
 
     final streamedResponse = await request.send();
