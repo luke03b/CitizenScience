@@ -54,6 +54,7 @@ def load_class_mapping(model_name):
     JSON file should have the same name as the .pt file.
     Format: {"0": "Class Name 0", "1": "Class Name 1", ...}
     Uses 0-based indexing to match PyTorch output.
+    Non-integer keys (e.g. "description") are silently ignored.
     """
     json_path = os.path.join(MODELS_DIR, model_name.replace('.pt', '.json'))
     if not os.path.exists(json_path):
@@ -62,8 +63,14 @@ def load_class_mapping(model_name):
     with open(json_path, 'r', encoding='utf-8') as f:
         mapping = json.load(f)
     
-    # Convert string keys to integers (0-based indexing)
-    return {int(k): v for k, v in mapping.items()}
+    # Convert string keys to integers (0-based indexing); skip non-integer keys
+    result = {}
+    for k, v in mapping.items():
+        try:
+            result[int(k)] = v
+        except (ValueError, TypeError):
+            pass
+    return result
 
 
 def load_model(model_name):
@@ -253,14 +260,16 @@ async def identify_flower(photo: UploadFile = File(...), model_name: str = Form(
 @app.get("/models")
 def list_models():
     """
-    List all available AI models.
+    List all available AI models with their descriptions.
 
-    Scans the AiModels directory for PyTorch model files (.pt) representing
-    available AI models for flower identification.
+    Scans the AiModels directory for PyTorch model files (.pt) and reads
+    the optional description from the corresponding JSON mapping file.
 
     Returns:
         dict: A dictionary containing:
-            - models (list): List of model file names (with .pt extension).
+            - models (list): List of objects with:
+                - name (str): Model file name (with .pt extension).
+                - description (str | null): Human-readable description if available.
 
     Raises:
         500: If there's an error reading the models directory.
@@ -275,7 +284,16 @@ def list_models():
             f for f in os.listdir(models_dir)
             if f.endswith(".pt")
         ]
-        return {"models": model_files}
+        result = []
+        for model_file in model_files:
+            description = None
+            json_path = os.path.join(models_dir, model_file.replace('.pt', '.json'))
+            if os.path.exists(json_path):
+                with open(json_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    description = data.get('description')
+            result.append({"name": model_file, "description": description})
+        return {"models": result}
     except Exception as e:
         return JSONResponse(
             status_code=500,

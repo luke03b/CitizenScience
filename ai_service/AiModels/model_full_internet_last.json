@@ -4,5 +4,6 @@
     "2": "O. incubacea",
     "3": "O. majellensis",
     "4": "O. sphegodes",
-    "5": "O. sphegodes_Palena"
+    "5": "O. sphegodes Palena",
+    "description": "This model is trained to classify different species of orchids, specifically O. exaltata, O. garganica, O. incubacea, O. majellensis, O. sphegodes, and O. sphegodes Palena."
 }

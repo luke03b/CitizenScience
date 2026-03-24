@@ -69,25 +69,25 @@ public class AvvistamentoService {
     }
 
     /**
-     * Creates a new sighting with photos, location, and AI flower identification.
+     * Creates a new sighting with a photo, location, and AI flower identification.
      *
      * @param user the user creating the sighting
-     * @param photos array of photo files (at least one required)
+     * @param photo the photo file (required)
      * @param data the date and time of the sighting
      * @param latitudine the latitude coordinate
      * @param longitudine the longitude coordinate
      * @param note optional notes about the sighting
      * @param aiModelOverride optional AI model name to use instead of the user's default selection
      * @return AvvistamentoResponse containing the created sighting details
-     * @throws IllegalArgumentException if no photos provided or invalid files
+     * @throws IllegalArgumentException if no photo provided or invalid file
      * @throws IOException if photo storage fails
      */
     @Transactional
-    public AvvistamentoResponse createAvvistamento(User user, MultipartFile[] photos, LocalDateTime data,
+    public AvvistamentoResponse createAvvistamento(User user, MultipartFile photo, LocalDateTime data,
                                                     Double latitudine, Double longitudine, String note,
                                                     String aiModelOverride) throws IOException {
-        if (photos == null || photos.length == 0) {
-            throw new IllegalArgumentException("At least one photo is required for creating a sighting");
+        if (photo == null || photo.isEmpty()) {
+            throw new IllegalArgumentException("A photo is required for creating a sighting");
         }
 
         Point point = geometryFactory.createPoint(new Coordinate(longitudine, latitudine));
@@ -100,7 +100,7 @@ public class AvvistamentoService {
         Double aiConfidence = null;
         
         try {
-            var identificationResult = aiService.identifyFlower(photos[0], user, aiModelOverride);
+            var identificationResult = aiService.identifyFlower(photo, user, aiModelOverride);
             flowerName = identificationResult.getFlowerName();
             aiModelUsed = identificationResult.getModelUsed();
             aiConfidence = identificationResult.getConfidence();
@@ -125,21 +125,21 @@ public class AvvistamentoService {
 
         avvistamento = avvistamentoRepository.save(avvistamento);
 
-        List<FotoAvvistamento> fotoList = savePhotos(avvistamento, photos);
+        List<FotoAvvistamento> fotoList = savePhoto(avvistamento, photo);
         avvistamento.setFoto(fotoList);
 
         return AvvistamentoResponse.from(avvistamento);
     }
 
     /**
-     * Saves photos for a sighting to the file system and database.
+     * Saves a photo for a sighting to the file system and database.
      * 
      * @param avvistamento the sighting entity
-     * @param photos array of photo files
-     * @return list of saved FotoAvvistamento entities
+     * @param photo the photo file
+     * @return list containing the saved FotoAvvistamento entity
      * @throws IOException if file operations fail
      */
-    private List<FotoAvvistamento> savePhotos(Avvistamento avvistamento, MultipartFile[] photos) throws IOException {
+    private List<FotoAvvistamento> savePhoto(Avvistamento avvistamento, MultipartFile photo) throws IOException {
         List<FotoAvvistamento> fotoList = new ArrayList<>();
         String avvistamentoDir = uploadDir + "/" + avvistamento.getId();
         Path uploadPath = Paths.get(avvistamentoDir);
@@ -148,30 +148,26 @@ public class AvvistamentoService {
             Files.createDirectories(uploadPath);
         }
 
-        for (MultipartFile photo : photos) {
-            if (photo != null && !photo.isEmpty()) {
-                validateImageFile(photo);
-                
-                String originalFilename = photo.getOriginalFilename();
-                String sanitizedFilename = sanitizeFilename(originalFilename);
-                String fileName = UUID.randomUUID() + "_" + sanitizedFilename;
-                Path filePath = uploadPath.resolve(fileName);
-                
-                if (!filePath.normalize().startsWith(uploadPath.normalize())) {
-                    throw new IllegalArgumentException("Invalid file upload");
-                }
-                
-                Files.copy(photo.getInputStream(), filePath);
+        validateImageFile(photo);
 
-                String relativePath = avvistamento.getId() + "/" + fileName;
-                FotoAvvistamento foto = FotoAvvistamento.builder()
-                        .avvistamento(avvistamento)
-                        .photoPath(relativePath)
-                        .build();
-                foto = fotoAvvistamentoRepository.save(foto);
-                fotoList.add(foto);
-            }
+        String originalFilename = photo.getOriginalFilename();
+        String sanitizedFilename = sanitizeFilename(originalFilename);
+        String fileName = UUID.randomUUID() + "_" + sanitizedFilename;
+        Path filePath = uploadPath.resolve(fileName);
+
+        if (!filePath.normalize().startsWith(uploadPath.normalize())) {
+            throw new IllegalArgumentException("Invalid file upload");
         }
+
+        Files.copy(photo.getInputStream(), filePath);
+
+        String relativePath = avvistamento.getId() + "/" + fileName;
+        FotoAvvistamento foto = FotoAvvistamento.builder()
+                .avvistamento(avvistamento)
+                .photoPath(relativePath)
+                .build();
+        foto = fotoAvvistamentoRepository.save(foto);
+        fotoList.add(foto);
 
         return fotoList;
     }

@@ -33,7 +33,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
   
-  List<XFile> _selectedImages = [];
+  XFile? _selectedImage;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
   bool _locationLoading = false;
@@ -150,7 +150,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
       final XFile? image = await _picker.pickImage(source: ImageSource.camera);
       if (image != null) {
         setState(() {
-          _selectedImages.add(image);
+          _selectedImage = image;
         });
       }
     } catch (e) {
@@ -163,13 +163,13 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
     }
   }
 
-  /// Selects one or more photos from the device gallery.
+  /// Selects a photo from the device gallery.
   Future<void> _pickImageFromGallery() async {
     try {
-      final List<XFile> images = await _picker.pickMultiImage();
-      if (images.isNotEmpty) {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
         setState(() {
-          _selectedImages.addAll(images);
+          _selectedImage = image;
         });
       }
     } catch (e) {
@@ -215,7 +215,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   Future<void> _submitSighting() async {
     if (!_formKey.currentState!.validate()) return;
     
-    if (_selectedImages.isEmpty) {
+    if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocale.photoRequired.getString(context))),
       );
@@ -243,7 +243,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
       final appState = Provider.of<AppStateProvider>(context, listen: false);
       
       await appState.createSighting(
-        photos: _selectedImages,
+        photo: _selectedImage!,
         date: _selectedDate,
         latitude: lat,
         longitude: lng,
@@ -282,10 +282,10 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
     }
   }
 
-  /// Removes an image from the selected images list.
-  void _removeImage(int index) {
+  /// Removes the selected image.
+  void _removeImage() {
     setState(() {
-      _selectedImages.removeAt(index);
+      _selectedImage = null;
     });
   }
 
@@ -300,7 +300,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),
-            child: _selectedImages.isEmpty
+            child: _selectedImage == null
                 ? _buildSelectionView()
                 : _buildFormView(),
           ),
@@ -358,56 +358,49 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Image preview
-          SizedBox(
-            height: 120,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: _selectedImages.length,
-              itemBuilder: (context, index) {
-                return Stack(
-                  children: [
-                    Container(
-                      width: 120,
-                      height: 120,
-                      margin: const EdgeInsets.only(right: 8),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          _selectedImages[index].path,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.error),
-                            );
-                          },
-                        ),
-                      ),
+          // Single image preview
+          Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    _selectedImage!.path,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.error),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: GestureDetector(
+                  onTap: _removeImage,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
                     ),
-                    Positioned(
-                      top: 4,
-                      right: 12,
-                      child: GestureDetector(
-                        onTap: () => _removeImage(index),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 16,
                     ),
-                  ],
-                );
-              },
-            ),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           Row(
@@ -416,7 +409,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
                 child: OutlinedButton.icon(
                   onPressed: _pickImageFromCamera,
                   icon: const Icon(Icons.camera_alt),
-                  label: Text(AppLocale.addPhoto.getString(context)),
+                  label: Text(AppLocale.retakePhoto.getString(context)),
                 ),
               ),
               const SizedBox(width: 8),

@@ -49,10 +49,10 @@ public class SightingController {
     }
 
     /**
-     * Creates a new sighting with photos and location data.
+     * Creates a new sighting with a photo and location data.
      *
      * @param user the authenticated user creating the sighting
-     * @param photos array of photo files (at least one required)
+     * @param photo the photo file (required)
      * @param data the date and time of the sighting
      * @param latitudine the latitude coordinate
      * @param longitudine the longitude coordinate
@@ -63,7 +63,7 @@ public class SightingController {
      * @throws IOException if photo processing fails
      */
     @PostMapping
-    @Operation(summary = "Create a new sighting", description = "Creates a new citizen science sighting with at least one photo required")
+    @Operation(summary = "Create a new sighting", description = "Creates a new citizen science sighting with one photo required")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Sighting successfully created"),
         @ApiResponse(responseCode = "400", description = "Invalid input data or missing required photo"),
@@ -71,7 +71,7 @@ public class SightingController {
     })
     public ResponseEntity<AvvistamentoResponse> createSighting(
             @AuthenticationPrincipal User user,
-            @Parameter(description = "Photos of the sighting (at least one required)", required = true) @RequestParam(value = "photos") MultipartFile[] photos,
+            @Parameter(description = "Photo of the sighting (required)", required = true) @RequestParam(value = "photo") MultipartFile photo,
             @Parameter(description = "Date and time of the sighting", required = true) @RequestParam("data") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime data,
             @Parameter(description = "Latitude coordinate", required = true) @RequestParam("latitudine") Double latitudine,
             @Parameter(description = "Longitude coordinate", required = true) @RequestParam("longitudine") Double longitudine,
@@ -79,7 +79,7 @@ public class SightingController {
             @Parameter(description = "Optional AI model override for this sighting only") @RequestParam(value = "aiModel", required = false) String aiModel) throws IOException {
         
         AvvistamentoResponse response = avvistamentoService.createAvvistamento(
-                user, photos, data, latitudine, longitudine, note, aiModel);
+                user, photo, data, latitudine, longitudine, note, aiModel);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 

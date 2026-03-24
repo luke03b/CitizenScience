@@ -43,4 +43,27 @@ public interface AiContainerModelRepository extends JpaRepository<AiContainerMod
     @Modifying
     @Query("DELETE FROM AiContainerModel m WHERE m.containerName = :containerName")
     void deleteByContainerName(@Param("containerName") String containerName);
+
+    /**
+     * Returns the model currently marked as the system-wide default, if any.
+     *
+     * @return Optional containing the default model mapping, or empty if none set
+     */
+    Optional<AiContainerModel> findByIsDefaultTrue();
+
+    /**
+     * Clears the default flag on all models.
+     * Should be called inside a transaction before setting a new default.
+     */
+    @Modifying
+    @Query("UPDATE AiContainerModel m SET m.isDefault = false")
+    void clearAllDefaults();
+
+    /**
+     * Returns the first model in the registry ordered by discovery time, if any.
+     * Used as the last-resort fallback when no specific or default model is available.
+     *
+     * @return Optional containing the earliest discovered model, or empty if the table is empty
+     */
+    Optional<AiContainerModel> findFirstByOrderByDiscoveredAtAsc();
 }

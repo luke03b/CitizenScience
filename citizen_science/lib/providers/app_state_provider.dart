@@ -388,7 +388,7 @@ class AppStateProvider extends ChangeNotifier {
   /// When [aiModel] is provided it is sent to the backend as an override for
   /// this sighting only and does NOT change the user's default model selection.
   Future<void> createSighting({
-    required List<XFile> photos,
+    required XFile photo,
     required DateTime date,
     required double latitude,
     required double longitude,
@@ -399,7 +399,7 @@ class AppStateProvider extends ChangeNotifier {
       // Try to create online
       try {
         await _apiService.createSighting(
-          photos: photos,
+          photo: photo,
           data: date,
           latitudine: latitude,
           longitudine: longitude,
@@ -415,23 +415,20 @@ class AppStateProvider extends ChangeNotifier {
     // Save as pending sighting
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     
-    // Copy photos to persistent storage
+    // Copy photo to persistent storage
     final photoPaths = <String>[];
-    for (final photo in photos) {
-      try {
-        final newPath = await _offlineStorage.copyFileToPersistentStorage(photo.path);
-        
-        // For web, also store the actual photo bytes in IndexedDB
-        // For native platforms, this is a no-op
-        final bytes = await photo.readAsBytes();
-        await _offlineStorage.storePhotoBytes(newPath, bytes);
-        
-        photoPaths.add(newPath);
-      } catch (e) {
-        // If photo storage fails (web or native), skip this photo
-        // Log error but continue with other photos
-        debugPrint('Failed to store photo: $e');
-      }
+    try {
+      final newPath = await _offlineStorage.copyFileToPersistentStorage(photo.path);
+      
+      // For web, also store the actual photo bytes in IndexedDB
+      // For native platforms, this is a no-op
+      final bytes = await photo.readAsBytes();
+      await _offlineStorage.storePhotoBytes(newPath, bytes);
+      
+      photoPaths.add(newPath);
+    } catch (e) {
+      // If photo storage fails (web or native), skip
+      debugPrint('Failed to store photo: $e');
     }
     
     final pendingSighting = PendingSightingModel(
@@ -465,27 +462,28 @@ class AppStateProvider extends ChangeNotifier {
     
     for (final pending in pendingCopy) {
       try {
-        // Convert file paths to XFile objects
-        final photos = <XFile>[];
-        for (final path in pending.photoPaths) {
-          try {
-            // Try to get photo bytes (for web)
-            final bytes = await _offlineStorage.getPhotoBytes(path);
-            if (bytes != null) {
-              // Create XFile from bytes (web)
-              photos.add(XFile.fromData(bytes, name: path.split('_').last));
-            } else {
-              // Create XFile from path (native)
-              photos.add(XFile(path));
-            }
-          } catch (e) {
-            // Fall back to creating from path
-            photos.add(XFile(path));
+        if (pending.photoPaths.isEmpty) continue;
+
+        // Use the first (and only) stored photo path
+        final path = pending.photoPaths.first;
+        XFile photo;
+        try {
+          // Try to get photo bytes (for web)
+          final bytes = await _offlineStorage.getPhotoBytes(path);
+          if (bytes != null) {
+            // Create XFile from bytes (web)
+            photo = XFile.fromData(bytes, name: path.split('_').last);
+          } else {
+            // Create XFile from path (native)
+            photo = XFile(path);
           }
+        } catch (e) {
+          // Fall back to creating from path
+          photo = XFile(path);
         }
         
         await _apiService.createSighting(
-          photos: photos,
+          photo: photo,
           data: pending.date,
           latitudine: pending.latitude,
           longitudine: pending.longitude,

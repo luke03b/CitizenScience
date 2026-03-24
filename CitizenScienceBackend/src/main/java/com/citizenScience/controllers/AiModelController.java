@@ -2,6 +2,7 @@ package com.citizenScience.controllers;
 
 import com.citizenScience.entities.AiModelSelection;
 import com.citizenScience.entities.User;
+import com.citizenScience.dto.AiModelInfo;
 import com.citizenScience.repositories.AiModelSelectionRepository;
 import com.citizenScience.services.AiService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,7 +70,7 @@ public class AiModelController {
                     .body(Map.of("error", "Only researchers can access AI models"));
         }
 
-        List<String> models = aiService.getAvailableModels();
+        List<AiModelInfo> models = aiService.getAvailableModels();
         return ResponseEntity.ok(Map.of("models", models));
     }
 
@@ -186,6 +187,56 @@ public class AiModelController {
         return ResponseEntity.ok(Map.of(
                 "modelName", selection.get().getModelName(),
                 "selectedAt", selection.get().getSelectedAt()
+        ));
+    }
+
+    /**
+     * Sets the system-wide default AI model used when no specific model is requested
+     * or the requested model is unreachable.
+     * Only one model can be default at a time; calling this endpoint replaces any
+     * previously set default.
+     *
+     * <p>Passing an empty {@code modelName} clears the current default so that no
+     * model is marked as default.
+     *
+     * @param user    the authenticated researcher
+     * @param request request body with {@code modelName} (may be empty to clear)
+     * @return ResponseEntity with success message or error
+     */
+    @PostMapping("/models/set-default")
+    @Operation(summary = "Set default AI model",
+               description = "Marks a model as the system-wide default used when no specific model is "
+                           + "requested or the requested model is unreachable (researchers only). "
+                           + "Send an empty modelName to clear the current default.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Default model updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Model not found in registry"),
+        @ApiResponse(responseCode = "401", description = "User not authenticated"),
+        @ApiResponse(responseCode = "403", description = "User is not a researcher")
+    })
+    public ResponseEntity<?> setDefaultModel(
+            @AuthenticationPrincipal User user,
+            @RequestBody Map<String, String> request) {
+
+        if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Only researchers can set the default AI model"));
+        }
+
+        String modelName = request.get("modelName");
+
+        try {
+            aiService.setDefaultModel(modelName);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+
+        if (modelName == null || modelName.isBlank()) {
+            return ResponseEntity.ok(Map.of("message", "Default model cleared"));
+        }
+        return ResponseEntity.ok(Map.of(
+                "message", "Default model set successfully",
+                "modelName", modelName
         ));
     }
 }

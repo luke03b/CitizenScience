@@ -132,6 +132,7 @@ class AppLocale {
   static const addPhotoDescription = 'addPhotoDescription';
   static const chooseFromGallery = 'chooseFromGallery';
   static const fromGallery = 'fromGallery';
+  static const retakePhoto = 'retakePhoto';
   static const dateAndTime = 'dateAndTime';
   static const notesOptional = 'notesOptional';
   static const createSighting = 'createSighting';
@@ -200,6 +201,12 @@ class AppLocale {
   static const noModelsAvailable = 'noModelsAvailable';
   static const aiModelForThisSighting = 'aiModelForThisSighting';
   static const useDefaultModel = 'useDefaultModel';
+  static const modelInfoTitle = 'modelInfoTitle';
+  static const noModelDescription = 'noModelDescription';
+  static const setAsDefault = 'setAsDefault';
+  static const removeDefault = 'removeDefault';
+  static const setDefaultSuccess = 'setDefaultSuccess';
+  static const clearDefaultSuccess = 'clearDefaultSuccess';
 
   // Error Messages
   static const errorNetworkConnection = 'errorNetworkConnection';
@@ -260,7 +267,7 @@ class LocaleData {
     AppLocale.citizenScience: 'Citizen Science',
     AppLocale.welcomeLogin: 'Benvenuto! Accedi per continuare',
     AppLocale.password: 'Password',
-    AppLocale.enterPassword: 'inserisci la tua password',
+    AppLocale.enterPassword: 'Inserisci la tua password',
     AppLocale.passwordMinLength: 'La password deve essere di almeno 6 caratteri',
     AppLocale.login: 'Accedi',
     AppLocale.noAccount: 'Non hai un account? ',
@@ -271,7 +278,7 @@ class LocaleData {
     AppLocale.registration: 'Registrazione',
     AppLocale.createAccount: 'Crea il tuo account',
     AppLocale.passwordConfirmation: 'Conferma Password',
-    AppLocale.confirmPassword: 'conferma la password',
+    AppLocale.confirmPassword: 'Conferma Password',
     AppLocale.passwordsDontMatch: 'Le password non corrispondono',
     AppLocale.iAmResearcher: 'Sono un ricercatore',
     AppLocale.alreadyHaveAccount: 'Hai già un account? ',
@@ -287,9 +294,9 @@ class LocaleData {
     AppLocale.changePasswordTitle: 'Cambio Password',
     AppLocale.enterOldAndNew: 'Inserisci la tua vecchia password e la nuova password',
     AppLocale.oldPassword: 'Vecchia Password',
-    AppLocale.enterOldPassword: 'inserisci la tua vecchia password',
+    AppLocale.enterOldPassword: 'Inserisci la tua vecchia password',
     AppLocale.newPassword: 'Nuova Password',
-    AppLocale.enterNewPassword: 'inserisci la nuova password',
+    AppLocale.enterNewPassword: 'Inserisci la nuova password',
     AppLocale.passwordChangedSuccess: 'Password cambiata con successo',
     AppLocale.passwordChangeError: 'Errore nel cambio password',
     AppLocale.newPasswordMustBeDifferent: 'La nuova password deve essere diversa dalla vecchia',
@@ -347,6 +354,7 @@ class LocaleData {
     AppLocale.addPhotoDescription: 'Scatta una foto o selezionala dalla galleria per creare un nuovo avvistamento',
     AppLocale.chooseFromGallery: 'Scegli dalla galleria',
     AppLocale.fromGallery: 'Dalla galleria',
+    AppLocale.retakePhoto: 'Scatta di nuovo',
     AppLocale.dateAndTime: 'Data e ora',
     AppLocale.notesOptional: 'Note (opzionale)',
     AppLocale.createSighting: 'Crea Avvistamento',
@@ -413,8 +421,14 @@ class LocaleData {
     AppLocale.modelSelectedSuccess: 'Modello selezionato con successo',
     AppLocale.modelSelectionError: 'Errore nella selezione del modello',
     AppLocale.noModelsAvailable: 'Nessun modello disponibile',
-    AppLocale.aiModelForThisSighting: 'Modello AI per questo avvistamento',
+    AppLocale.aiModelForThisSighting: 'Seleziona Modello AI',
     AppLocale.useDefaultModel: 'Predefinito',
+    AppLocale.modelInfoTitle: 'Informazioni Modello',
+    AppLocale.noModelDescription: 'Nessuna descrizione disponibile per questo modello.',
+    AppLocale.setAsDefault: 'Imposta come predefinito',
+    AppLocale.removeDefault: 'Rimuovi predefinito',
+    AppLocale.setDefaultSuccess: 'Modello predefinito impostato con successo',
+    AppLocale.clearDefaultSuccess: 'Modello predefinito rimosso',
 
     // Error Messages
     AppLocale.errorNetworkConnection: 'Impossibile connettersi al server. Verifica la tua connessione Internet.',
@@ -556,6 +570,7 @@ class LocaleData {
     AppLocale.addPhotoDescription: 'Take a photo or select one from the gallery to create a new sighting',
     AppLocale.chooseFromGallery: 'Choose from gallery',
     AppLocale.fromGallery: 'From gallery',
+    AppLocale.retakePhoto: 'Retake photo',
     AppLocale.dateAndTime: 'Date and time',
     AppLocale.notesOptional: 'Notes (optional)',
     AppLocale.createSighting: 'Create Sighting',
@@ -622,8 +637,14 @@ class LocaleData {
     AppLocale.modelSelectedSuccess: 'Model selected successfully',
     AppLocale.modelSelectionError: 'Error selecting model',
     AppLocale.noModelsAvailable: 'No models available',
-    AppLocale.aiModelForThisSighting: 'AI model for this sighting',
+    AppLocale.aiModelForThisSighting: 'Select AI model',
     AppLocale.useDefaultModel: 'Default',
+    AppLocale.modelInfoTitle: 'Model Information',
+    AppLocale.noModelDescription: 'No description available for this model.',
+    AppLocale.setAsDefault: 'Set as default',
+    AppLocale.removeDefault: 'Remove default',
+    AppLocale.setDefaultSuccess: 'Default model set successfully',
+    AppLocale.clearDefaultSuccess: 'Default model cleared',
 
     // Error Messages
     AppLocale.errorNetworkConnection: 'Unable to connect to the server. Please check your Internet connection.',

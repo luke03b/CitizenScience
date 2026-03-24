@@ -1,5 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════
 -- CITIZEN SCIENCE - Schema Completo
+-- (includes ai_container_models, descriptions, and is_default)
 -- ═══════════════════════════════════════════════════════════════
 
 -- ═══════════════════════════════════════════════════════════════
@@ -72,16 +73,23 @@ CREATE TABLE ai_model_selection (
 CREATE INDEX idx_ai_model_selection_user_id ON ai_model_selection(user_id);
 
 -- ═══════════════════════════════════════════════════════════════
--- AI_CONTAINER_MODELS - Model-to-container registry
--- Populated by the force-scan endpoint; maps each AI model to
--- the container that hosts it.
+-- TABELLA AI_CONTAINER_MODELS
+-- Model-to-container registry populated by the force-scan endpoint.
+-- is_default marks the single model used as system-wide default.
 -- ═══════════════════════════════════════════════════════════════
 
 CREATE TABLE ai_container_models (
     id             UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
     model_name     VARCHAR(255) NOT NULL UNIQUE,
     container_name VARCHAR(255) NOT NULL,
-    discovered_at  TIMESTAMP    NOT NULL DEFAULT NOW()
+    discovered_at  TIMESTAMP    NOT NULL DEFAULT NOW(),
+    description    TEXT,
+    is_default     BOOLEAN      NOT NULL DEFAULT FALSE
 );
 
 CREATE INDEX idx_ai_container_models_container_name ON ai_container_models (container_name);
+
+-- Enforce at most one default model across the entire table.
+CREATE UNIQUE INDEX idx_ai_container_models_single_default
+    ON ai_container_models (is_default)
+    WHERE (is_default = TRUE);

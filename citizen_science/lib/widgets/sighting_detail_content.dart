@@ -259,6 +259,12 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
     return appState.currentUser?.id == widget.sighting.userId;
   }
 
+  /// Returns whether the current user has the researcher role.
+  bool get _isResearcher {
+    final appState = Provider.of<AppStateProvider>(context, listen: false);
+    return appState.currentUser?.isResearcher == true;
+  }
+
   /// Toggles the editing state for the notes field.
   void _toggleEdit() {
     setState(() {
@@ -456,8 +462,8 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                     widget.sighting.userName,
                   ),
                   
-                  // Display AI model information if available
-                  if (widget.sighting.aiModelUsed != null) ...[
+                  // Display AI model information if available (only for researchers)
+                  if (_isResearcher && widget.sighting.aiModelUsed != null) ...[
                     const SizedBox(height: 12),
                     _buildInfoRow(
                       context,
@@ -466,7 +472,7 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                       widget.sighting.aiModelUsed!,
                     ),
                   ],
-                  if (widget.sighting.aiConfidence != null) ...[
+                  if (_isResearcher && widget.sighting.aiConfidence != null) ...[
                     const SizedBox(height: 12),
                     _buildInfoRow(
                       context,

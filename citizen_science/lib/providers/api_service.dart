@@ -171,7 +171,7 @@ class ApiService {
   /// this sighting only and does NOT change the user's default model selection.
   /// Returns the created [SightingResponse] or throws an [Exception] if creation fails.
   Future<SightingResponse> createSighting({
-    required List<XFile> photos,
+    required XFile photo,
     required DateTime data,
     required double latitudine,
     required double longitudine,
@@ -185,33 +185,31 @@ class ApiService {
 
     request.headers.addAll(_getMultipartHeaders());
 
-    // Add photos
-    for (var photo in photos) {
-      final stream = http.ByteStream(photo.openRead());
-      final length = await photo.length();
-      
-      // Determine content type from file extension
-      String mimeType = 'image/jpeg';
-      final extension = photo.path.toLowerCase().split('.').last;
-      if (extension == 'png') {
-        mimeType = 'image/png';
-      } else if (extension == 'jpg' || extension == 'jpeg') {
-        mimeType = 'image/jpeg';
-      } else if (extension == 'gif') {
-        mimeType = 'image/gif';
-      } else if (extension == 'webp') {
-        mimeType = 'image/webp';
-      }
-      
-      final multipartFile = http.MultipartFile(
-        'photos',
-        stream,
-        length,
-        filename: photo.path.split('/').last,
-        contentType: MediaType.parse(mimeType),
-      );
-      request.files.add(multipartFile);
+    // Add photo
+    final stream = http.ByteStream(photo.openRead());
+    final length = await photo.length();
+
+    // Determine content type from file extension
+    String mimeType = 'image/jpeg';
+    final extension = photo.path.toLowerCase().split('.').last;
+    if (extension == 'png') {
+      mimeType = 'image/png';
+    } else if (extension == 'jpg' || extension == 'jpeg') {
+      mimeType = 'image/jpeg';
+    } else if (extension == 'gif') {
+      mimeType = 'image/gif';
+    } else if (extension == 'webp') {
+      mimeType = 'image/webp';
     }
+
+    final multipartFile = http.MultipartFile(
+      'photo',
+      stream,
+      length,
+      filename: photo.path.split('/').last,
+      contentType: MediaType.parse(mimeType),
+    );
+    request.files.add(multipartFile);
 
     // Add other fields
     request.fields['data'] = data.toIso8601String();
@@ -320,10 +318,12 @@ class ApiService {
     }
   }
 
-  /// Fetches the list of available AI models.
+  /// Fetches the list of available AI models with their optional descriptions.
   /// 
-  /// Returns a list of model names.
-  Future<List<String>> getAvailableAiModels() async {
+  /// Returns a list of model objects, each containing:
+  /// - `name` (String): the model file name
+  /// - `description` (String?): optional human-readable description
+  Future<List<Map<String, dynamic>>> getAvailableAiModels() async {
     final response = await http.get(
       Uri.parse('$apiUrl/ai/models'),
       headers: _getHeaders(),
@@ -332,7 +332,7 @@ class ApiService {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       final List<dynamic> models = data['models'];
-      return models.cast<String>();
+      return models.map((m) => Map<String, dynamic>.from(m as Map)).toList();
     } else {
       throw Exception(_parseErrorMessage(response.body));
     }
@@ -369,6 +369,22 @@ class ApiService {
       // No model selected yet
       return null;
     } else {
+      throw Exception(_parseErrorMessage(response.body));
+    }
+  }
+
+  /// Sets the system-wide default AI model.
+  ///
+  /// Pass an empty string to clear the current default (no default model).
+  /// Throws an [Exception] if the model is not found or the request fails.
+  Future<void> setDefaultAiModel(String modelName) async {
+    final response = await http.post(
+      Uri.parse('$apiUrl/ai/models/set-default'),
+      headers: _getHeaders(),
+      body: jsonEncode({'modelName': modelName}),
+    );
+
+    if (response.statusCode != 200) {
       throw Exception(_parseErrorMessage(response.body));
     }
   }

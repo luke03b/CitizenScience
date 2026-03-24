@@ -21,6 +21,11 @@ PLACEHOLDER_FLOWER_NAMES = {
     "placeholder_model_v2.pt": "Bellis Perennis (placeholder)",
 }
 
+PLACEHOLDER_MODEL_DESCRIPTIONS = {
+    "placeholder_model_v1.pt": "Placeholder model version 1 for testing multi-container scanning.",
+    "placeholder_model_v2.pt": "Placeholder model version 2 for testing multi-container scanning.",
+}
+
 
 @app.get("/")
 def read_root():
@@ -36,13 +41,20 @@ def read_root():
 @app.get("/models")
 def list_models():
     """
-    List all available placeholder AI models.
+    List all available placeholder AI models with their descriptions.
 
     Returns:
         dict: A dictionary containing:
-            - models (list): List of placeholder model file names.
+            - models (list): List of objects with:
+                - name (str): Placeholder model file name.
+                - description (str): Hardcoded description for the placeholder model.
     """
-    return {"models": PLACEHOLDER_MODELS}
+    return {
+        "models": [
+            {"name": model, "description": PLACEHOLDER_MODEL_DESCRIPTIONS.get(model)}
+            for model in PLACEHOLDER_MODELS
+        ]
+    }
 
 
 @app.post("/identify")

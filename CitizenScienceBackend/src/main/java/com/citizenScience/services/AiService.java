@@ -1,6 +1,7 @@
 package com.citizenScience.services;
 
 import com.citizenScience.dto.AiIdentificationResult;
+import com.citizenScience.dto.AiModelInfo;
 import com.citizenScience.entities.AiContainerModel;
 import com.citizenScience.entities.User;
 import com.citizenScience.repositories.AiContainerModelRepository;
@@ -81,11 +82,14 @@ public class AiService {
      * <ol>
      *   <li>Explicit {@code modelNameOverride} (if non-blank)</li>
      *   <li>Researcher's saved model selection</li>
-     *   <li>Any model found in the database registry (first entry)</li>
      * </ol>
      *
-     * <p>The target container URL is constructed dynamically by looking up the
-     * resolved model name in the {@code ai_container_models} table.
+     * <p>Fallback order when the resolved model is not specified, not found in the registry,
+     * or its container is unreachable:
+     * <ol>
+     *   <li>System-wide default model (flagged {@code is_default = true})</li>
+     *   <li>First model found in the database registry</li>
+     * </ol>
      *
      * @param photo             The photo file
      * @param user              The authenticated user
@@ -94,82 +98,59 @@ public class AiService {
      * @throws IOException if there is an error processing the photo
      */
     public AiIdentificationResult identifyFlower(MultipartFile photo, User user, String modelNameOverride) throws IOException {
-        try {
-            // ── 1. Resolve model name ─────────────────────────────────────────
-            String modelName = null;
-            if (modelNameOverride != null && !modelNameOverride.isBlank()) {
-                modelName = modelNameOverride;
-                logger.info("Using model override for identification: {}", modelName);
-            } else if (user != null && "ricercatore".equalsIgnoreCase(user.getRuolo())) {
-                var modelSelection = aiModelSelectionRepository.findByUser(user);
-                if (modelSelection.isPresent()) {
-                    modelName = modelSelection.get().getModelName();
-                    logger.info("Using selected model for researcher: {}", modelName);
-                }
+        // Extract photo bytes once to avoid re-reading the stream on each retry
+        final byte[] photoBytes = photo.getBytes();
+        final String photoFilename = photo.getOriginalFilename();
+        final String photoContentType = photo.getContentType();
+
+        // ── 1. Determine requested model ─────────────────────────────────────
+        String requestedModel = null;
+        if (modelNameOverride != null && !modelNameOverride.isBlank()) {
+            requestedModel = modelNameOverride;
+            logger.info("Using model override for identification: {}", requestedModel);
+        } else if (user != null && "ricercatore".equalsIgnoreCase(user.getRuolo())) {
+            var modelSelection = aiModelSelectionRepository.findByUser(user);
+            if (modelSelection.isPresent()) {
+                requestedModel = modelSelection.get().getModelName();
+                logger.info("Using selected model for researcher: {}", requestedModel);
             }
-
-            // ── 2. Resolve container URL from registry ────────────────────────
-            String containerUrl = resolveContainerUrl(modelName);
-            if (containerUrl == null) {
-                logger.warn("No container found for model '{}'; cannot identify flower", modelName);
-                return unknownFlowerResult();
-            }
-
-            // ── 3. Build multipart request ────────────────────────────────────
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-
-            ByteArrayResource resource = new ByteArrayResource(photo.getBytes()) {
-                @Override
-                public String getFilename() {
-                    return photo.getOriginalFilename();
-                }
-            };
-
-            HttpHeaders partHeaders = new HttpHeaders();
-            partHeaders.setContentType(MediaType.valueOf(photo.getContentType()));
-            HttpEntity<ByteArrayResource> fileEntity = new HttpEntity<>(resource, partHeaders);
-
-            body.add("photo", fileEntity);
-
-            if (modelName != null) {
-                body.add("model_name", modelName);
-            }
-
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            // ── 4. Call /identify on the resolved container ───────────────────
-            ResponseEntity<Map> response = restTemplate.exchange(
-                    containerUrl + "/identify",
-                    HttpMethod.POST,
-                    requestEntity,
-                    Map.class
-            );
-
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                Map<String, Object> responseBody = response.getBody();
-                String flowerName = (String) responseBody.get("flower_name");
-                Double confidence = ((Number) responseBody.getOrDefault("confidence", 0.0)).doubleValue();
-                String usedModel = (String) responseBody.get("model_used");
-
-                logger.info("AI container {} identified flower as: {} with confidence: {}",
-                        containerUrl, flowerName, confidence);
-
-                return AiIdentificationResult.builder()
-                        .flowerName(flowerName)
-                        .confidence(confidence)
-                        .modelUsed(usedModel)
-                        .build();
-            } else {
-                logger.warn("AI container {} returned unexpected status: {}", containerUrl, response.getStatusCode());
-                return unknownFlowerResult();
-            }
-        } catch (Exception e) {
-            logger.error("Error calling AI container for flower identification", e);
-            return unknownFlowerResult();
         }
+
+        // ── 2. Try requested model ────────────────────────────────────────────
+        if (requestedModel != null) {
+            Optional<AiContainerModel> mapping = aiContainerModelRepository.findByModelName(requestedModel);
+            if (mapping.isPresent()) {
+                AiIdentificationResult result = tryIdentify(photoBytes, photoFilename, photoContentType,
+                        mapping.get().getContainerName(), requestedModel);
+                if (result != null) return result;
+                logger.warn("Requested model '{}' is not reachable; falling back to default model", requestedModel);
+            } else {
+                logger.warn("Requested model '{}' not found in registry; falling back to default model", requestedModel);
+            }
+        }
+
+        // ── 3. Try system-wide default model ──────────────────────────────────
+        Optional<AiContainerModel> defaultModel = aiContainerModelRepository.findByIsDefaultTrue();
+        if (defaultModel.isPresent()) {
+            AiIdentificationResult result = tryIdentify(photoBytes, photoFilename, photoContentType,
+                    defaultModel.get().getContainerName(), defaultModel.get().getModelName());
+            if (result != null) return result;
+            logger.warn("Default model '{}' is not reachable; falling back to first available model",
+                    defaultModel.get().getModelName());
+        }
+
+        // ── 4. Try first available model ──────────────────────────────────────
+        Optional<AiContainerModel> firstModel = aiContainerModelRepository.findFirstByOrderByDiscoveredAtAsc();
+        if (firstModel.isPresent()) {
+            AiIdentificationResult result = tryIdentify(photoBytes, photoFilename, photoContentType,
+                    firstModel.get().getContainerName(), firstModel.get().getModelName());
+            if (result != null) return result;
+            logger.warn("First available model '{}' is not reachable; no more fallbacks",
+                    firstModel.get().getModelName());
+        }
+
+        logger.warn("No AI model is reachable; returning unknown flower result");
+        return unknownFlowerResult();
     }
 
     /**
@@ -178,13 +159,40 @@ public class AiService {
      *
      * <p>Call {@link #forceScanModels()} to refresh this list from the live containers.
      *
-     * @return list of model filenames, or empty list if none discovered yet
+     * @return list of {@link AiModelInfo} objects (name + optional description + isDefault),
+     *         or empty list if none discovered yet
      */
-    public List<String> getAvailableModels() {
+    public List<AiModelInfo> getAvailableModels() {
         return aiContainerModelRepository.findAll()
                 .stream()
-                .map(AiContainerModel::getModelName)
+                .map(m -> new AiModelInfo(m.getModelName(), m.getDescription(), m.isDefault()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Sets the given model as the system-wide default for identification requests.
+     * Clears any previously set default before applying the new one.
+     *
+     * <p>If {@code modelName} is {@code null} or blank, all defaults are cleared
+     * (no default model will be active).
+     *
+     * @param modelName the model to mark as default, or {@code null} / blank to clear
+     * @throws IllegalArgumentException if a non-blank {@code modelName} is not found in the registry
+     */
+    @Transactional
+    public void setDefaultModel(String modelName) {
+        aiContainerModelRepository.clearAllDefaults();
+
+        if (modelName != null && !modelName.isBlank()) {
+            AiContainerModel model = aiContainerModelRepository.findByModelName(modelName)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Model '" + modelName + "' not found in the registry"));
+            model.setDefault(true);
+            aiContainerModelRepository.save(model);
+            logger.info("Default model set to '{}'", modelName);
+        } else {
+            logger.info("Default model cleared");
+        }
     }
 
     /**
@@ -195,18 +203,27 @@ public class AiService {
      * <p>Stale models previously associated with a container are removed before
      * re-populating, so containers that no longer expose a model are cleaned up.
      *
+     * <p>Each item in the {@code models} array returned by a container may be either:
+     * <ul>
+     *   <li>a plain string (legacy format) – description is treated as {@code null}</li>
+     *   <li>an object with {@code name} (required) and {@code description} (optional) fields</li>
+     * </ul>
+     *
      * @return a map from container name to the list of models discovered (including
      *         containers that could not be reached, mapped to an empty list)
      */
     @Transactional
     @SuppressWarnings("unchecked")
     public Map<String, List<String>> forceScanModels() {
+        /** Internal holder for a discovered model name + optional description. */
+        record ModelInfo(String name, String description) {}
+
         List<String> containers = parseContainerNames();
         Map<String, List<String>> result = new LinkedHashMap<>();
 
         for (String containerName : containers) {
             String containerUrl = buildContainerUrl(containerName);
-            List<String> discoveredModels = new ArrayList<>();
+            List<ModelInfo> discoveredModels = new ArrayList<>();
 
             try {
                 ResponseEntity<Map> response = restTemplate.getForEntity(
@@ -218,12 +235,23 @@ public class AiService {
                     Object modelsObj = response.getBody().get("models");
                     if (modelsObj instanceof List<?> rawList) {
                         for (Object item : rawList) {
-                            if (item instanceof String modelName) {
-                                discoveredModels.add(modelName);
+                            if (item instanceof Map<?, ?> modelMap) {
+                                // New format: {"name": "...", "description": "..."}
+                                Object nameObj = modelMap.get("name");
+                                Object descObj = modelMap.get("description");
+                                if (nameObj instanceof String modelName) {
+                                    String desc = descObj instanceof String s ? s : null;
+                                    discoveredModels.add(new ModelInfo(modelName, desc));
+                                }
+                            } else if (item instanceof String modelName) {
+                                // Legacy format: plain string
+                                discoveredModels.add(new ModelInfo(modelName, null));
                             }
                         }
                     }
-                    logger.info("Container '{}' reported {} model(s): {}", containerName, discoveredModels.size(), discoveredModels);
+                    logger.info("Container '{}' reported {} model(s): {}", containerName,
+                            discoveredModels.size(),
+                            discoveredModels.stream().map(ModelInfo::name).toList());
                 } else {
                     logger.warn("Container '{}' returned unexpected status: {}", containerName, response.getStatusCode());
                 }
@@ -235,7 +263,9 @@ public class AiService {
             aiContainerModelRepository.deleteByContainerName(containerName);
 
             LocalDateTime now = LocalDateTime.now();
-            for (String modelName : discoveredModels) {
+            for (ModelInfo modelInfo : discoveredModels) {
+                String modelName = modelInfo.name();
+                String description = modelInfo.description();
                 // If another container already registered this model, log a warning and
                 // update the mapping (last-scanned container wins; model names are expected
                 // to be unique across the network).
@@ -249,6 +279,7 @@ public class AiService {
                             }
                             existing.setContainerName(containerName);
                             existing.setDiscoveredAt(now);
+                            existing.setDescription(description);
                             aiContainerModelRepository.save(existing);
                         },
                         () -> aiContainerModelRepository.save(
@@ -256,12 +287,13 @@ public class AiService {
                                         .modelName(modelName)
                                         .containerName(containerName)
                                         .discoveredAt(now)
+                                        .description(description)
                                         .build()
                         )
                 );
             }
 
-            result.put(containerName, discoveredModels);
+            result.put(containerName, discoveredModels.stream().map(ModelInfo::name).collect(Collectors.toList()));
         }
 
         return result;
@@ -272,28 +304,71 @@ public class AiService {
     // ──────────────────────────────────────────────────────────────────────────
 
     /**
-     * Resolves the base URL of the container that hosts the given model.
-     * If {@code modelName} is null or not found in the registry, falls back to
-     * the first available model in the database (if any).
+     * Attempts to call a specific AI container to identify a flower.
      *
-     * @param modelName the requested model name (may be null)
-     * @return base URL (e.g., "http://ai_service:8000") or {@code null} if no container is known
+     * @param photoBytes       raw bytes of the photo
+     * @param photoFilename    original filename of the photo
+     * @param photoContentType MIME type of the photo
+     * @param containerName    Docker service / container name to call
+     * @param modelName        model name to request from the container
+     * @return the identification result, or {@code null} if the container is unreachable
+     *         or returns an unexpected response
      */
-    private String resolveContainerUrl(String modelName) {
-        if (modelName != null) {
-            Optional<AiContainerModel> mapping = aiContainerModelRepository.findByModelName(modelName);
-            if (mapping.isPresent()) {
-                return buildContainerUrl(mapping.get().getContainerName());
-            }
-            logger.warn("Model '{}' not found in registry; trying first available model", modelName);
-        }
+    private AiIdentificationResult tryIdentify(byte[] photoBytes, String photoFilename,
+                                               String photoContentType,
+                                               String containerName, String modelName) {
+        String containerUrl = buildContainerUrl(containerName);
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
-        // Fallback: use the first model in the registry
-        return aiContainerModelRepository.findAll()
-                .stream()
-                .findFirst()
-                .map(m -> buildContainerUrl(m.getContainerName()))
-                .orElse(null);
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+
+            ByteArrayResource resource = new ByteArrayResource(photoBytes) {
+                @Override
+                public String getFilename() {
+                    return photoFilename;
+                }
+            };
+
+            HttpHeaders partHeaders = new HttpHeaders();
+            partHeaders.setContentType(MediaType.valueOf(photoContentType));
+            HttpEntity<ByteArrayResource> fileEntity = new HttpEntity<>(resource, partHeaders);
+
+            body.add("photo", fileEntity);
+            body.add("model_name", modelName);
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    containerUrl + "/identify",
+                    HttpMethod.POST,
+                    requestEntity,
+                    Map.class
+            );
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+                String flowerName = (String) responseBody.get("flower_name");
+                Double confidence = ((Number) responseBody.getOrDefault("confidence", 0.0)).doubleValue();
+                String usedModel = (String) responseBody.get("model_used");
+
+                logger.info("Container {} identified flower as: {} with confidence: {}",
+                        containerUrl, flowerName, confidence);
+
+                return AiIdentificationResult.builder()
+                        .flowerName(flowerName)
+                        .confidence(confidence)
+                        .modelUsed(usedModel)
+                        .build();
+            } else {
+                logger.warn("Container {} returned unexpected status: {}", containerUrl, response.getStatusCode());
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("Error calling container {} with model '{}': {}", containerUrl, modelName, e.getMessage());
+            return null;
+        }
     }
 
     /**

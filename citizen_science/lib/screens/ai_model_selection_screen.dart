@@ -30,10 +30,12 @@ class AiModelSelectionScreen extends StatefulWidget {
 }
 
 class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
-  List<String> _models = [];
+  List<Map<String, dynamic>> _models = [];
   String? _selectedModel;
+  String? _defaultModel;
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _isSettingDefault = false;
   String? _error;
 
   @override
@@ -58,15 +60,25 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
       final selectedModelFuture = appState.apiService.getSelectedAiModel();
       final results = await Future.wait([modelsFuture, selectedModelFuture]);
       
-      final models = results[0] as List<String>;
+      final models = results[0] as List<Map<String, dynamic>>;
       final selectedModel = results[1] as String?;
       
       if (!mounted) return;
       
+      // Find the model marked as default in the backend
+      final defaultEntry = models.firstWhere(
+        (m) => m['isDefault'] == true,
+        orElse: () => {},
+      );
+      final defaultModelName = defaultEntry.isNotEmpty
+          ? defaultEntry['name'] as String?
+          : null;
+
       setState(() {
         _models = models;
-        // Set the currently selected model as default if it exists in the available models
-        if (selectedModel != null && models.contains(selectedModel)) {
+        _defaultModel = defaultModelName;
+        // Set the currently selected model if it exists in the available models
+        if (selectedModel != null && models.any((m) => m['name'] == selectedModel)) {
           _selectedModel = selectedModel;
         }
         _isLoading = false;
@@ -137,6 +149,73 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
         setState(() => _isSaving = false);
       }
     }
+  }
+
+  /// Toggles the default flag for the given model.
+  ///
+  /// If [modelName] is already the default, clears the default.
+  /// Otherwise, sets [modelName] as the new default.
+  Future<void> _toggleDefaultModel(String modelName) async {
+    if (_isSettingDefault) return;
+    setState(() => _isSettingDefault = true);
+
+    try {
+      final appState = Provider.of<AppStateProvider>(context, listen: false);
+      final isCurrentlyDefault = _defaultModel == modelName;
+      // Toggle: clear if already default, set if not.
+      await appState.apiService.setDefaultAiModel(isCurrentlyDefault ? '' : modelName);
+
+      if (!mounted) return;
+
+      setState(() {
+        _defaultModel = isCurrentlyDefault ? null : modelName;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(isCurrentlyDefault
+              ? AppLocale.clearDefaultSuccess.getString(context)
+              : AppLocale.setDefaultSuccess.getString(context)),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ErrorHandler.getErrorMessage(context, e)),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isSettingDefault = false);
+      }
+    }
+  }
+
+  /// Shows a dialog with the description of the given AI model.
+  /// If no description is available, an informative message is shown instead.
+  void _showModelInfoDialog(Map<String, dynamic> model) {
+    final description = model['description'] as String?;
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocale.modelInfoTitle.getString(context)),
+        content: Text(
+          description != null && description.isNotEmpty
+              ? description
+              : AppLocale.noModelDescription.getString(context),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(AppLocale.close.getString(context)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -214,15 +293,80 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
                                       itemCount: _models.length,
                                       itemBuilder: (context, index) {
                                         final model = _models[index];
+                                        final modelName = model['name'] as String;
+                                        final isDefault = _defaultModel == modelName;
                                         return RadioListTile<String>(
-                                          title: Text(model),
-                                          value: model,
+                                          title: Row(
+                                            children: [
+                                              Expanded(child: Text(modelName)),
+                                              if (isDefault)
+                                                Container(
+                                                  margin: const EdgeInsets.only(left: 8),
+                                                  padding: const EdgeInsets.symmetric(
+                                                      horizontal: 8, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .primaryContainer,
+                                                    borderRadius: BorderRadius.circular(12),
+                                                  ),
+                                                  child: Text(
+                                                    AppLocale.useDefaultModel
+                                                        .getString(context),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .labelSmall
+                                                        ?.copyWith(
+                                                          color: Theme.of(context)
+                                                              .colorScheme
+                                                              .onPrimaryContainer,
+                                                        ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          value: modelName,
                                           groupValue: _selectedModel,
                                           onChanged: (value) {
                                             setState(() {
                                               _selectedModel = value;
                                             });
                                           },
+                                          secondary: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              // "Set as default" star button – only shown in
+                                              // "save default" mode (not in "pick" mode).
+                                              if (widget.onModelSelected == null)
+                                                IconButton(
+                                                  icon: Icon(
+                                                    isDefault
+                                                        ? Icons.star
+                                                        : Icons.star_border,
+                                                    color: isDefault
+                                                        ? Theme.of(context)
+                                                            .colorScheme
+                                                            .primary
+                                                        : null,
+                                                  ),
+                                                  tooltip: isDefault
+                                                      ? AppLocale.removeDefault
+                                                          .getString(context)
+                                                      : AppLocale.setAsDefault
+                                                          .getString(context),
+                                                  onPressed: _isSettingDefault
+                                                      ? null
+                                                      : () => _toggleDefaultModel(modelName),
+                                                ),
+                                              IconButton(
+                                                icon: const Icon(Icons.info_outline),
+                                                tooltip: AppLocale.modelInfoTitle
+                                                    .getString(context),
+                                                onPressed: () =>
+                                                    _showModelInfoDialog(model),
+                                              ),
+                                            ],
+                                          ),
                                         );
                                       },
                                     ),

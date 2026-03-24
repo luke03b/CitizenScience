@@ -36,4 +36,15 @@ public class AiContainerModel {
     /** Timestamp when this entry was last discovered/updated. */
     @Column(nullable = false)
     private LocalDateTime discoveredAt;
+
+    /** Optional human-readable description of the model, reported by the AI container. */
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    /**
+     * Whether this model is the system-wide default for identification requests.
+     * At most one model across the entire table may have this flag set to {@code true}.
+     */
+    @Column(name = "is_default", nullable = false)
+    private boolean isDefault;
 }

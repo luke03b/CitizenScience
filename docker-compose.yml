@@ -54,13 +54,7 @@ services:
         condition: service_healthy
       ai_service_placeholder:
         condition: service_healthy
-    # restart: unless-stopped
-    # healthcheck:
-    #   test: ["CMD-SHELL", "java -cp /app/resources:/app/classes:/app/libs/* org.springframework.boot.actuate.health.HealthEndpoint || exit 1"]
-    #   interval: 5s
-    #   timeout: 3s
-    #   retries: 5
-    #   start_period: 30s
+    restart: unless-stopped
 
   # ═══════════════════════════════════════════════════════════════
   # FRONTEND - Flutter Web
@@ -72,10 +66,7 @@ services:
     container_name: citizen-science-frontend
     ports:
       - "8081:80"
-    # depends_on:
-    #   backend:
-    #     condition: service_healthy
-    # restart: unless-stopped
+    restart: unless-stopped
 
   # ═══════════════════════════════════════════════════════════════
   # AI SERVICE - Python FastAPI
@@ -89,7 +80,7 @@ services:
       - "8000:8000"
     volumes:
       - ai_models:/app/AiModels
-    # restart: unless-stopped
+    restart: unless-stopped
     healthcheck:
       <<: *ai-healthcheck-base
       start_period: 30s
@@ -104,7 +95,7 @@ services:
     container_name: citizen-science-ai-placeholder
     ports:
       - "8002:8000"
-    # restart: unless-stopped
+    restart: unless-stopped
     healthcheck:
       <<: *ai-healthcheck-base
       start_period: 10s
