@@ -1,0 +1,223 @@
+openapi: "3.0.3"
+info:
+  title: AI Image Classification Service
+  description: >
+    Generic contract for an AI image classification microservice.
+    Any container that implements these three endpoints (/health, /models, /identify)
+    following this specification can be connected to the rest of the application in a
+    plug-and-play fashion, regardless of the underlying AI framework or domain.
+  version: "1.0.0"
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+
+  /health:
+    get:
+      summary: Health check
+      description: >
+        Returns the health status of the service together with information about
+        the compute device currently in use. Orchestration tools and load-balancers
+        can poll this endpoint to decide whether the container is ready to serve traffic.
+      operationId: healthCheck
+      tags:
+        - Monitoring
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: healthy
+                accelerator_available: false
+                accelerator_info: null
+                device_in_use: cpu
+
+  /models:
+    get:
+      summary: List available models
+      description: >
+        Returns the list of model files that are currently available in the models
+        directory, along with an optional human-readable description for each model.
+        Implementations may support any model format.
+      operationId: listModels
+      tags:
+        - Models
+      responses:
+        "200":
+          description: List of available models retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelsResponse"
+              example:
+                models:
+                  - name: classifier_v1
+                    description: Version 1 of the image classifier
+                  - name: classifier_v2
+                    description: null
+        "500":
+          description: Error reading the models directory
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /identify:
+    post:
+      summary: Classify an image
+      description: >
+        Accepts a multipart/form-data request containing an image file and an
+        optional model name. Returns the predicted label, the confidence score,
+        the model used, and the device on which inference was performed.
+        If no model name is provided, the first available model is used.
+      operationId: identifyImage
+      tags:
+        - Inference
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - photo
+              properties:
+                photo:
+                  type: string
+                  format: binary
+                  description: Image file to classify (must have an image/* MIME type).
+                model_name:
+                  type: string
+                  nullable: true
+                  description: >
+                    Name of the model to use. If omitted, the first available model
+                    is selected automatically.
+      responses:
+        "200":
+          description: Image classified successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentifyResponse"
+              example:
+                label: example_class
+                confidence: 0.9423
+                model_used: classifier_v1
+                device_used: cpu
+        "400":
+          description: The uploaded file is not an image
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: File must be an image
+        "404":
+          description: The requested model was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Model 'unknown_model' not found. Available models: ['classifier_v1']"
+        "500":
+          description: No models available or error during inference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: No models available
+
+components:
+  schemas:
+
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - accelerator_available
+        - accelerator_info
+        - device_in_use
+      properties:
+        status:
+          type: string
+          enum:
+            - healthy
+          description: Current health status of the service.
+        accelerator_available:
+          type: boolean
+          description: Whether a hardware accelerator (e.g. GPU) is available on the host.
+        accelerator_info:
+          type: string
+          nullable: true
+          description: >
+            Human-readable identifier of the accelerator (e.g. device name),
+            or null if no accelerator is available.
+        device_in_use:
+          type: string
+          description: >
+            Compute device currently used for inference (e.g. "cpu", "cuda", "mps").
+
+    ModelInfo:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          description: Identifier or file name of the model.
+        description:
+          type: string
+          nullable: true
+          description: Human-readable description of the model, or null if not available.
+
+    ModelsResponse:
+      type: object
+      required:
+        - models
+      properties:
+        models:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModelInfo"
+          description: List of available AI models.
+
+    IdentifyResponse:
+      type: object
+      required:
+        - label
+        - confidence
+        - model_used
+        - device_used
+      properties:
+        label:
+          type: string
+          description: Predicted class label returned by the model.
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score of the prediction (0 = lowest, 1 = highest).
+        model_used:
+          type: string
+          description: Identifier of the model used for inference.
+        device_used:
+          type: string
+          description: Compute device used for inference (e.g. "cpu", "cuda:0").
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable description of the error.
