@@ -1,5 +1,5 @@
 /// Data transfer object for user responses from the API.
-/// 
+///
 /// Contains user profile information returned from authentication
 /// and user management endpoints.
 class UserResponse {

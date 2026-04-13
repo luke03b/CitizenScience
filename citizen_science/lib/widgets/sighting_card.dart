@@ -9,25 +9,19 @@ import 'placeholder_image.dart';
 class SightingCard extends StatelessWidget {
   /// The sighting data to display in the card.
   final SightingModel sighting;
-  
+
   /// Callback function executed when the card is tapped.
   final VoidCallback onTap;
 
   /// Creates a [SightingCard] widget.
-  const SightingCard({
-    super.key,
-    required this.sighting,
-    required this.onTap,
-  });
+  const SightingCard({super.key, required this.sighting, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: onTap,
         child: Column(
@@ -42,7 +36,9 @@ class SightingCard extends StatelessWidget {
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                           child: Icon(
                             Icons.local_florist,
                             size: 64,

@@ -12,18 +12,18 @@ import '../dto/update_notes_request.dart';
 import '../dto/update_user_request.dart';
 
 /// Service class for handling all API communication.
-/// 
+///
 /// Provides methods for authentication, user management, sightings,
 /// and AI model operations. Manages JWT tokens for authenticated requests.
 class ApiService {
   static const String _baseUrl = 'http://localhost:8080';
-  
+
   /// API endpoint base URL with /api prefix.
   static String get apiUrl => '$_baseUrl/api';
-  
+
   /// Base URL for serving static files (photos).
   static String get baseUrl => _baseUrl;
-  
+
   String? _token;
 
   /// Sets the JWT token for authenticated requests.
@@ -33,25 +33,23 @@ class ApiService {
 
   /// Returns headers for JSON requests, optionally including auth token.
   Map<String, String> _getHeaders({bool includeAuth = true}) {
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-    
+    final headers = {'Content-Type': 'application/json'};
+
     if (includeAuth && _token != null) {
       headers['Authorization'] = 'Bearer $_token';
     }
-    
+
     return headers;
   }
 
   /// Returns headers for multipart requests with auth token.
   Map<String, String> _getMultipartHeaders() {
     final headers = <String, String>{};
-    
+
     if (_token != null) {
       headers['Authorization'] = 'Bearer $_token';
     }
-    
+
     return headers;
   }
 
@@ -72,7 +70,7 @@ class ApiService {
   }
 
   /// Authenticates user with email and password.
-  /// 
+  ///
   /// Returns an [AuthResponse] containing JWT token and user data.
   /// Throws an [Exception] if authentication fails.
   Future<AuthResponse> login(LoginRequest request) async {
@@ -92,7 +90,7 @@ class ApiService {
   }
 
   /// Registers a new user account.
-  /// 
+  ///
   /// Returns an [AuthResponse] containing JWT token and user data.
   /// Throws an [Exception] if registration fails.
   Future<AuthResponse> register(RegisterRequest request) async {
@@ -112,7 +110,7 @@ class ApiService {
   }
 
   /// Changes the current user's password.
-  /// 
+  ///
   /// Requires [request] with old and new passwords.
   /// Returns success message or throws an [Exception] if change fails.
   Future<String> changePassword(ChangePasswordRequest request) async {
@@ -131,7 +129,7 @@ class ApiService {
   }
 
   /// Fetches the current authenticated user's information.
-  /// 
+  ///
   /// Requires a valid JWT token.
   /// Throws an [Exception] if request fails.
   Future<UserResponse> getCurrentUser() async {
@@ -148,7 +146,7 @@ class ApiService {
   }
 
   /// Updates the current user's profile information.
-  /// 
+  ///
   /// Returns updated [UserResponse] or throws an [Exception] if update fails.
   Future<UserResponse> updateCurrentUser(UpdateUserRequest request) async {
     final response = await http.put(
@@ -165,7 +163,7 @@ class ApiService {
   }
 
   /// Creates a new sighting with photos and location data.
-  /// 
+  ///
   /// Uploads [photos] along with sighting metadata.
   /// When [aiModel] is provided it is sent to the backend as an override for
   /// this sighting only and does NOT change the user's default model selection.
@@ -233,7 +231,7 @@ class ApiService {
   }
 
   /// Fetches all sightings from the database.
-  /// 
+  ///
   /// Returns a list of [SightingResponse] objects.
   Future<List<SightingResponse>> getAllSightings() async {
     final response = await http.get(
@@ -250,7 +248,7 @@ class ApiService {
   }
 
   /// Fetches all sightings created by a specific user.
-  /// 
+  ///
   /// Returns a list of [SightingResponse] objects for the given [userId].
   Future<List<SightingResponse>> getSightingsByUser(String userId) async {
     final response = await http.get(
@@ -267,7 +265,7 @@ class ApiService {
   }
 
   /// Fetches sightings within a radius of a geographic location.
-  /// 
+  ///
   /// Returns sightings within [radiusKm] kilometers of coordinates [lat], [lng].
   Future<List<SightingResponse>> getSightingsByLocation({
     required double lat,
@@ -275,7 +273,9 @@ class ApiService {
     required double radiusKm,
   }) async {
     final response = await http.get(
-      Uri.parse('$apiUrl/sightings/location?lat=$lat&lng=$lng&radiusKm=$radiusKm'),
+      Uri.parse(
+        '$apiUrl/sightings/location?lat=$lat&lng=$lng&radiusKm=$radiusKm',
+      ),
       headers: _getHeaders(),
     );
 
@@ -288,9 +288,12 @@ class ApiService {
   }
 
   /// Updates the notes of a specific sighting.
-  /// 
+  ///
   /// Returns updated [SightingResponse] or throws an [Exception] if update fails.
-  Future<SightingResponse> updateSightingNotes(String id, UpdateNotesRequest request) async {
+  Future<SightingResponse> updateSightingNotes(
+    String id,
+    UpdateNotesRequest request,
+  ) async {
     final response = await http.put(
       Uri.parse('$apiUrl/sightings/$id/notes'),
       headers: _getHeaders(),
@@ -305,7 +308,7 @@ class ApiService {
   }
 
   /// Deletes a sighting by ID.
-  /// 
+  ///
   /// Throws an [Exception] if deletion fails.
   Future<void> deleteSighting(String id) async {
     final response = await http.delete(
@@ -319,7 +322,7 @@ class ApiService {
   }
 
   /// Fetches the list of available AI models with their optional descriptions.
-  /// 
+  ///
   /// Returns a list of model objects, each containing:
   /// - `name` (String): the model file name
   /// - `description` (String?): optional human-readable description
@@ -339,7 +342,7 @@ class ApiService {
   }
 
   /// Selects an AI model by name for species identification.
-  /// 
+  ///
   /// Throws an [Exception] if selection fails.
   Future<void> selectAiModel(String modelName) async {
     final response = await http.post(
@@ -354,7 +357,7 @@ class ApiService {
   }
 
   /// Gets the currently selected AI model.
-  /// 
+  ///
   /// Returns the name of the currently selected model, or null if none selected.
   Future<String?> getSelectedAiModel() async {
     final response = await http.get(

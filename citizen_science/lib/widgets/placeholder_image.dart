@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 /// for sighting images that fail to load or are not provided.
 class PlaceholderImage extends StatelessWidget {
   /// Creates a [PlaceholderImage] widget.
-  const PlaceholderImage({
-    super.key,
-  });
+  const PlaceholderImage({super.key});
 
   @override
   Widget build(BuildContext context) {

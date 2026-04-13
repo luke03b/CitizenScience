@@ -9,7 +9,7 @@ import '../utils/error_handler.dart';
 import 'main_layout_screen.dart';
 
 /// Registration screen for new user account creation.
-/// 
+///
 /// Collects user information including first name, last name, email, password,
 /// and role (researcher or regular user). Validates all inputs before submitting.
 class RegistrationScreen extends StatefulWidget {
@@ -38,7 +38,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   /// Validates form inputs and creates a new user account.
-  /// 
+  ///
   /// On success, navigates to [MainLayoutScreen] and clears navigation stack.
   /// On failure, displays an error message via SnackBar.
   Future<void> _handleRegistration() async {
@@ -64,7 +64,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ErrorHandler.getErrorMessage(context, e)),
@@ -108,16 +108,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     Text(
                       AppLocale.citizenScience.getString(context),
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocale.createAccount.getString(context),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -131,13 +132,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           return AppLocale.enterFirstName.getString(context);
                         }
                         if (value.length < 2) {
-                          return AppLocale.firstNameMinLength.getString(context);
+                          return AppLocale.firstNameMinLength.getString(
+                            context,
+                          );
                         }
                         if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                          return AppLocale.firstNameOnlyLetters.getString(context);
+                          return AppLocale.firstNameOnlyLetters.getString(
+                            context,
+                          );
                         }
                         if (value.length > 50) {
-                          return AppLocale.firstNameMaxLength.getString(context);
+                          return AppLocale.firstNameMaxLength.getString(
+                            context,
+                          );
                         }
                         return null;
                       },
@@ -156,7 +163,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           return AppLocale.lastNameMinLength.getString(context);
                         }
                         if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-                          return AppLocale.lastNameOnlyLetters.getString(context);
+                          return AppLocale.lastNameOnlyLetters.getString(
+                            context,
+                          );
                         }
                         if (value.length > 50) {
                           return AppLocale.lastNameMaxLength.getString(context);
@@ -175,7 +184,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         if (value == null || value.isEmpty) {
                           return AppLocale.enterEmail.getString(context);
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
                           return AppLocale.enterValidEmail.getString(context);
                         }
                         return null;

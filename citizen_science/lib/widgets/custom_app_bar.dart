@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// The title text displayed in the app bar.
   final String title;
-  
+
   /// Whether to show the science icon logo next to the title.
   final bool showLogo;
-  
+
   /// Optional list of action widgets displayed on the right side.
   final List<Widget>? actions;
-  
+
   /// Optional widget displayed on the left side, typically a back button.
   final Widget? leading;
 

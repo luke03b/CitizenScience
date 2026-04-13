@@ -7,19 +7,19 @@ import 'package:flutter/material.dart';
 class CustomButton extends StatelessWidget {
   /// The text displayed on the button.
   final String text;
-  
+
   /// Callback function executed when the button is pressed.
   final VoidCallback onPressed;
-  
+
   /// Whether the button is in a loading state, showing a progress indicator.
   final bool isLoading;
-  
+
   /// Whether to use an outlined style instead of elevated.
   final bool isOutlined;
-  
+
   /// Optional icon displayed before the text.
   final IconData? icon;
-  
+
   /// Optional custom background color for the button.
   final Color? color;
 
@@ -53,9 +53,7 @@ class CustomButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: color ?? Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
@@ -79,11 +77,7 @@ class CustomButton extends StatelessWidget {
     if (icon != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon),
-          const SizedBox(width: 8),
-          Text(text),
-        ],
+        children: [Icon(icon), const SizedBox(width: 8), Text(text)],
       );
     }
 

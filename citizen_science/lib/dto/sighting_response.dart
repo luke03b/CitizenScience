@@ -1,5 +1,5 @@
 /// Data transfer object for sighting responses from the API.
-/// 
+///
 /// Contains comprehensive information about a wildlife sighting including
 /// location, date, photos, and associated user data.
 class SightingResponse {

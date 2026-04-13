@@ -7,11 +7,11 @@ import '../widgets/custom_button.dart';
 import '../utils/error_handler.dart';
 
 /// Screen for researchers to select the AI model for flower identification.
-/// 
+///
 /// Fetches available models from the backend and allows researchers to
 /// choose which model should be used for AI-powered flower identification.
 /// This screen is only accessible to users with researcher privileges.
-/// 
+///
 /// When [onModelSelected] is provided the screen operates in "pick" mode:
 /// confirming a selection calls the callback with the chosen model name and
 /// pops the route WITHOUT persisting the choice as the user's default.
@@ -54,17 +54,17 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
 
     try {
       final appState = Provider.of<AppStateProvider>(context, listen: false);
-      
+
       // Fetch available models and currently selected model in parallel
       final modelsFuture = appState.apiService.getAvailableAiModels();
       final selectedModelFuture = appState.apiService.getSelectedAiModel();
       final results = await Future.wait([modelsFuture, selectedModelFuture]);
-      
+
       final models = results[0] as List<Map<String, dynamic>>;
       final selectedModel = results[1] as String?;
-      
+
       if (!mounted) return;
-      
+
       // Find the model marked as default in the backend
       final defaultEntry = models.firstWhere(
         (m) => m['isDefault'] == true,
@@ -78,14 +78,15 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
         _models = models;
         _defaultModel = defaultModelName;
         // Set the currently selected model if it exists in the available models
-        if (selectedModel != null && models.any((m) => m['name'] == selectedModel)) {
+        if (selectedModel != null &&
+            models.any((m) => m['name'] == selectedModel)) {
           _selectedModel = selectedModel;
         }
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
-      
+
       setState(() {
         _error = ErrorHandler.getErrorMessage(context, e);
         _isLoading = false;
@@ -124,20 +125,20 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
     try {
       final appState = Provider.of<AppStateProvider>(context, listen: false);
       await appState.apiService.selectAiModel(_selectedModel!);
-      
+
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocale.modelSelectedSuccess.getString(context)),
           backgroundColor: Colors.green,
         ),
       );
-      
+
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ErrorHandler.getErrorMessage(context, e)),
@@ -163,7 +164,9 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
       final appState = Provider.of<AppStateProvider>(context, listen: false);
       final isCurrentlyDefault = _defaultModel == modelName;
       // Toggle: clear if already default, set if not.
-      await appState.apiService.setDefaultAiModel(isCurrentlyDefault ? '' : modelName);
+      await appState.apiService.setDefaultAiModel(
+        isCurrentlyDefault ? '' : modelName,
+      );
 
       if (!mounted) return;
 
@@ -173,9 +176,11 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(isCurrentlyDefault
-              ? AppLocale.clearDefaultSuccess.getString(context)
-              : AppLocale.setDefaultSuccess.getString(context)),
+          content: Text(
+            isCurrentlyDefault
+                ? AppLocale.clearDefaultSuccess.getString(context)
+                : AppLocale.setDefaultSuccess.getString(context),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -229,163 +234,179 @@ class _AiModelSelectionScreenState extends State<AiModelSelectionScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    size: 64,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    _error!,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton.icon(
+                    onPressed: _loadModels,
+                    icon: const Icon(Icons.refresh),
+                    label: Text(AppLocale.retry.getString(context)),
+                  ),
+                ],
+              ),
+            )
+          : SingleChildScrollView(
+              padding: EdgeInsets.all(isMobile ? 16 : 32),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Icon(
-                        Icons.error_outline,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _error!,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton.icon(
-                        onPressed: _loadModels,
-                        icon: const Icon(Icons.refresh),
-                        label: Text(AppLocale.retry.getString(context)),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                AppLocale.availableModels.getString(context),
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 16),
+                              if (_models.isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Text(
+                                    AppLocale.noModelsAvailable.getString(
+                                      context,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              else
+                                RadioGroup<String>(
+                                  groupValue: _selectedModel,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedModel = value;
+                                    });
+                                  },
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: _models.length,
+                                    itemBuilder: (context, index) {
+                                      final model = _models[index];
+                                      final modelName = model['name'] as String;
+                                      final isDefault =
+                                          _defaultModel == modelName;
+                                      return RadioListTile<String>(
+                                        title: Row(
+                                          children: [
+                                            Expanded(child: Text(modelName)),
+                                            if (isDefault)
+                                              Container(
+                                                margin: const EdgeInsets.only(
+                                                  left: 8,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 2,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .primaryContainer,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Text(
+                                                  AppLocale.useDefaultModel
+                                                      .getString(context),
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimaryContainer,
+                                                      ),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        value: modelName,
+                                        secondary: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            // "Set as default" star button – only shown in
+                                            // "save default" mode (not in "pick" mode).
+                                            if (widget.onModelSelected == null)
+                                              IconButton(
+                                                icon: Icon(
+                                                  isDefault
+                                                      ? Icons.star
+                                                      : Icons.star_border,
+                                                  color: isDefault
+                                                      ? Theme.of(
+                                                          context,
+                                                        ).colorScheme.primary
+                                                      : null,
+                                                ),
+                                                tooltip: isDefault
+                                                    ? AppLocale.removeDefault
+                                                          .getString(context)
+                                                    : AppLocale.setAsDefault
+                                                          .getString(context),
+                                                onPressed: _isSettingDefault
+                                                    ? null
+                                                    : () => _toggleDefaultModel(
+                                                        modelName,
+                                                      ),
+                                              ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                Icons.info_outline,
+                                              ),
+                                              tooltip: AppLocale.modelInfoTitle
+                                                  .getString(context),
+                                              onPressed: () =>
+                                                  _showModelInfoDialog(model),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              const SizedBox(height: 24),
+                              CustomButton(
+                                text: AppLocale.confirmSelectionButton
+                                    .getString(context),
+                                icon: Icons.check,
+                                onPressed: _saveModel,
+                                isOutlined: false,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                )
-              : SingleChildScrollView(
-                  padding: EdgeInsets.all(isMobile ? 16 : 32),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Card(
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppLocale.availableModels.getString(context),
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  if (_models.isEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Text(
-                                        AppLocale.noModelsAvailable.getString(context),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    )
-                                  else
-                                    ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: _models.length,
-                                      itemBuilder: (context, index) {
-                                        final model = _models[index];
-                                        final modelName = model['name'] as String;
-                                        final isDefault = _defaultModel == modelName;
-                                        return RadioListTile<String>(
-                                          title: Row(
-                                            children: [
-                                              Expanded(child: Text(modelName)),
-                                              if (isDefault)
-                                                Container(
-                                                  margin: const EdgeInsets.only(left: 8),
-                                                  padding: const EdgeInsets.symmetric(
-                                                      horizontal: 8, vertical: 2),
-                                                  decoration: BoxDecoration(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primaryContainer,
-                                                    borderRadius: BorderRadius.circular(12),
-                                                  ),
-                                                  child: Text(
-                                                    AppLocale.useDefaultModel
-                                                        .getString(context),
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .labelSmall
-                                                        ?.copyWith(
-                                                          color: Theme.of(context)
-                                                              .colorScheme
-                                                              .onPrimaryContainer,
-                                                        ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                          value: modelName,
-                                          groupValue: _selectedModel,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _selectedModel = value;
-                                            });
-                                          },
-                                          secondary: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              // "Set as default" star button – only shown in
-                                              // "save default" mode (not in "pick" mode).
-                                              if (widget.onModelSelected == null)
-                                                IconButton(
-                                                  icon: Icon(
-                                                    isDefault
-                                                        ? Icons.star
-                                                        : Icons.star_border,
-                                                    color: isDefault
-                                                        ? Theme.of(context)
-                                                            .colorScheme
-                                                            .primary
-                                                        : null,
-                                                  ),
-                                                  tooltip: isDefault
-                                                      ? AppLocale.removeDefault
-                                                          .getString(context)
-                                                      : AppLocale.setAsDefault
-                                                          .getString(context),
-                                                  onPressed: _isSettingDefault
-                                                      ? null
-                                                      : () => _toggleDefaultModel(modelName),
-                                                ),
-                                              IconButton(
-                                                icon: const Icon(Icons.info_outline),
-                                                tooltip: AppLocale.modelInfoTitle
-                                                    .getString(context),
-                                                onPressed: () =>
-                                                    _showModelInfoDialog(model),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  const SizedBox(height: 24),
-                                  CustomButton(
-                                    text: AppLocale.confirmSelectionButton.getString(context),
-                                    icon: Icons.check,
-                                    onPressed: _saveModel,
-                                    isOutlined: false,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
                 ),
+              ),
+            ),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_localization/flutter_localization.dart';
 
 /// Localized strings for the Citizen Science application.
-/// 
+///
 /// Contains all user-facing text in multiple languages (Italian and English).
 class AppLocale {
   // Supported locales
@@ -253,7 +253,8 @@ class LocaleData {
     AppLocale.italian: 'Italiano',
     AppLocale.english: 'Inglese',
     AppLocale.selectAiModel: 'Seleziona Modello AI',
-    AppLocale.configureAiModel: 'Configura il modello di intelligenza artificiale',
+    AppLocale.configureAiModel:
+        'Configura il modello di intelligenza artificiale',
     AppLocale.account: 'Account',
     AppLocale.changePassword: 'Cambio Password',
     AppLocale.logout: 'Logout',
@@ -268,7 +269,8 @@ class LocaleData {
     AppLocale.welcomeLogin: 'Benvenuto! Accedi per continuare',
     AppLocale.password: 'Password',
     AppLocale.enterPassword: 'Inserisci la tua password',
-    AppLocale.passwordMinLength: 'La password deve essere di almeno 6 caratteri',
+    AppLocale.passwordMinLength:
+        'La password deve essere di almeno 6 caratteri',
     AppLocale.login: 'Accedi',
     AppLocale.noAccount: 'Non hai un account? ',
     AppLocale.register: 'Registrati',
@@ -292,14 +294,16 @@ class LocaleData {
 
     // Change Password Screen
     AppLocale.changePasswordTitle: 'Cambio Password',
-    AppLocale.enterOldAndNew: 'Inserisci la tua vecchia password e la nuova password',
+    AppLocale.enterOldAndNew:
+        'Inserisci la tua vecchia password e la nuova password',
     AppLocale.oldPassword: 'Vecchia Password',
     AppLocale.enterOldPassword: 'Inserisci la tua vecchia password',
     AppLocale.newPassword: 'Nuova Password',
     AppLocale.enterNewPassword: 'Inserisci la nuova password',
     AppLocale.passwordChangedSuccess: 'Password cambiata con successo',
     AppLocale.passwordChangeError: 'Errore nel cambio password',
-    AppLocale.newPasswordMustBeDifferent: 'La nuova password deve essere diversa dalla vecchia',
+    AppLocale.newPasswordMustBeDifferent:
+        'La nuova password deve essere diversa dalla vecchia',
 
     // Collection Screen
     AppLocale.myCollection: 'La Mia Collezione',
@@ -326,7 +330,8 @@ class LocaleData {
     AppLocale.saveNotes: 'Salva Note',
     AppLocale.deleteSighting: 'Elimina Avvistamento',
     AppLocale.confirmDelete: 'Conferma Eliminazione',
-    AppLocale.confirmDeleteMessage: 'Sei sicuro di voler eliminare questo avvistamento?',
+    AppLocale.confirmDeleteMessage:
+        'Sei sicuro di voler eliminare questo avvistamento?',
     AppLocale.deleteAction: 'Elimina',
     AppLocale.sightingDeleted: 'Avvistamento eliminato con successo',
     AppLocale.deleteError: 'Errore nell\'eliminazione',
@@ -351,7 +356,8 @@ class LocaleData {
     AppLocale.confirmSelection: 'Conferma Selezione',
     AppLocale.unknownError: 'Errore sconosciuto',
     AppLocale.addPhoto: 'Aggiungi una foto',
-    AppLocale.addPhotoDescription: 'Scatta una foto o selezionala dalla galleria per creare un nuovo avvistamento',
+    AppLocale.addPhotoDescription:
+        'Scatta una foto o selezionala dalla galleria per creare un nuovo avvistamento',
     AppLocale.chooseFromGallery: 'Scegli dalla galleria',
     AppLocale.fromGallery: 'Dalla galleria',
     AppLocale.retakePhoto: 'Scatta di nuovo',
@@ -360,7 +366,8 @@ class LocaleData {
     AppLocale.createSighting: 'Crea Avvistamento',
     AppLocale.coordinates: 'Coordinate',
     AppLocale.confirm: 'Conferma',
-    AppLocale.savedOffline: 'Avvistamento salvato. Sarà caricato quando tornerà la connessione (In attesa di rete)',
+    AppLocale.savedOffline:
+        'Avvistamento salvato. Sarà caricato quando tornerà la connessione (In attesa di rete)',
 
     // Navigation
     AppLocale.mapLabel: 'Mappa',
@@ -390,24 +397,31 @@ class LocaleData {
     AppLocale.sightingDetails: 'Dettagli Avvistamento',
     AppLocale.deleteInProgress: 'Eliminazione in corso...',
     AppLocale.deleteSightingTooltip: 'Elimina avvistamento',
-    AppLocale.deleteConfirmationMessage: 'Sei sicuro di voler eliminare questo avvistamento? Questa azione non può essere annullata.',
+    AppLocale.deleteConfirmationMessage:
+        'Sei sicuro di voler eliminare questo avvistamento? Questa azione non può essere annullata.',
 
     // Collection Screen Extended
     AppLocale.pendingSightingsHeader: 'Avvistamenti in Attesa',
-    AppLocale.pendingSightingsSubtitle: 'Questi avvistamenti non sono ancora stati sincronizzati',
+    AppLocale.pendingSightingsSubtitle:
+        'Questi avvistamenti non sono ancora stati sincronizzati',
     AppLocale.syncCompleted: 'Sincronizzazione completata',
-    AppLocale.unableToLoadSightings: 'Impossibile caricare gli avvistamenti. Riprova più tardi.',
+    AppLocale.unableToLoadSightings:
+        'Impossibile caricare gli avvistamenti. Riprova più tardi.',
     AppLocale.loadingSightings: 'Caricamento avvistamenti...',
     AppLocale.synchronize: 'Sincronizza',
     AppLocale.pendingSightingsCount: 'avvistamento/i in attesa di rete',
-    AppLocale.yourSightingsWillAppearHere: 'I tuoi avvistamenti appariranno qui',
+    AppLocale.yourSightingsWillAppearHere:
+        'I tuoi avvistamenti appariranno qui',
 
     // Map Screen Extended
     AppLocale.networkError: 'Errore di Connessione',
-    AppLocale.networkErrorMessage: 'Nessuna connessione a Internet. Gli avvistamenti saranno salvati localmente.',
+    AppLocale.networkErrorMessage:
+        'Nessuna connessione a Internet. Gli avvistamenti saranno salvati localmente.',
     AppLocale.locationError: 'Errore di Posizione',
-    AppLocale.locationErrorMessage: 'Impossibile ottenere la posizione. Verrà utilizzata una posizione predefinita.',
-    AppLocale.locationServicesDisabled: 'I servizi di localizzazione sono disabilitati',
+    AppLocale.locationErrorMessage:
+        'Impossibile ottenere la posizione. Verrà utilizzata una posizione predefinita.',
+    AppLocale.locationServicesDisabled:
+        'I servizi di localizzazione sono disabilitati',
     AppLocale.locationPermissionDenied: 'Permesso di localizzazione negato',
     AppLocale.details: 'Dettagli',
     AppLocale.centeredOnCurrentLocation: 'Centrato sulla posizione attuale',
@@ -416,7 +430,8 @@ class LocaleData {
 
     // AI Model Selection Screen
     AppLocale.aiModelSelection: 'Selezione Modello AI',
-    AppLocale.selectModelPrompt: 'Seleziona un modello di intelligenza artificiale',
+    AppLocale.selectModelPrompt:
+        'Seleziona un modello di intelligenza artificiale',
     AppLocale.currentModel: 'Modello Corrente',
     AppLocale.modelSelectedSuccess: 'Modello selezionato con successo',
     AppLocale.modelSelectionError: 'Errore nella selezione del modello',
@@ -424,24 +439,33 @@ class LocaleData {
     AppLocale.aiModelForThisSighting: 'Seleziona Modello AI',
     AppLocale.useDefaultModel: 'Predefinito',
     AppLocale.modelInfoTitle: 'Informazioni Modello',
-    AppLocale.noModelDescription: 'Nessuna descrizione disponibile per questo modello.',
+    AppLocale.noModelDescription:
+        'Nessuna descrizione disponibile per questo modello.',
     AppLocale.setAsDefault: 'Imposta come predefinito',
     AppLocale.removeDefault: 'Rimuovi predefinito',
     AppLocale.setDefaultSuccess: 'Modello predefinito impostato con successo',
     AppLocale.clearDefaultSuccess: 'Modello predefinito rimosso',
 
     // Error Messages
-    AppLocale.errorNetworkConnection: 'Impossibile connettersi al server. Verifica la tua connessione Internet.',
-    AppLocale.errorServerUnavailable: 'Il server non è al momento disponibile. Riprova più tardi.',
+    AppLocale.errorNetworkConnection:
+        'Impossibile connettersi al server. Verifica la tua connessione Internet.',
+    AppLocale.errorServerUnavailable:
+        'Il server non è al momento disponibile. Riprova più tardi.',
     AppLocale.errorInvalidCredentials: 'Email o password non corretti.',
-    AppLocale.errorEmailAlreadyExists: 'Questa email è già registrata. Prova ad accedere.',
-    AppLocale.errorInvalidData: 'I dati inseriti non sono validi. Controlla e riprova.',
-    AppLocale.errorUnauthorized: 'Non sei autorizzato ad eseguire questa operazione.',
+    AppLocale.errorEmailAlreadyExists:
+        'Questa email è già registrata. Prova ad accedere.',
+    AppLocale.errorInvalidData:
+        'I dati inseriti non sono validi. Controlla e riprova.',
+    AppLocale.errorUnauthorized:
+        'Non sei autorizzato ad eseguire questa operazione.',
     AppLocale.errorNotFound: 'La risorsa richiesta non è stata trovata.',
-    AppLocale.errorTimeout: 'Richiesta scaduta. Controlla la tua connessione e riprova.',
-    AppLocale.errorUnexpected: 'Si è verificato un errore imprevisto. Riprova più tardi.',
+    AppLocale.errorTimeout:
+        'Richiesta scaduta. Controlla la tua connessione e riprova.',
+    AppLocale.errorUnexpected:
+        'Si è verificato un errore imprevisto. Riprova più tardi.',
     AppLocale.errorInvalidEmail: 'L\'indirizzo email non è valido.',
-    AppLocale.errorWeakPassword: 'La password è troppo debole. Usa almeno 6 caratteri.',
+    AppLocale.errorWeakPassword:
+        'La password è troppo debole. Usa almeno 6 caratteri.',
     AppLocale.errorWrongPassword: 'La password inserita non è corretta.',
   };
 
@@ -515,7 +539,8 @@ class LocaleData {
     AppLocale.enterNewPassword: 'Enter new password',
     AppLocale.passwordChangedSuccess: 'Password changed successfully',
     AppLocale.passwordChangeError: 'Error changing password',
-    AppLocale.newPasswordMustBeDifferent: 'New password must be different from old password',
+    AppLocale.newPasswordMustBeDifferent:
+        'New password must be different from old password',
 
     // Collection Screen
     AppLocale.myCollection: 'My Collection',
@@ -542,7 +567,8 @@ class LocaleData {
     AppLocale.saveNotes: 'Save Notes',
     AppLocale.deleteSighting: 'Delete Sighting',
     AppLocale.confirmDelete: 'Confirm Deletion',
-    AppLocale.confirmDeleteMessage: 'Are you sure you want to delete this sighting?',
+    AppLocale.confirmDeleteMessage:
+        'Are you sure you want to delete this sighting?',
     AppLocale.deleteAction: 'Delete',
     AppLocale.sightingDeleted: 'Sighting deleted successfully',
     AppLocale.deleteError: 'Deletion error',
@@ -567,7 +593,8 @@ class LocaleData {
     AppLocale.confirmSelection: 'Confirm Selection',
     AppLocale.unknownError: 'Unknown error',
     AppLocale.addPhoto: 'Add a photo',
-    AppLocale.addPhotoDescription: 'Take a photo or select one from the gallery to create a new sighting',
+    AppLocale.addPhotoDescription:
+        'Take a photo or select one from the gallery to create a new sighting',
     AppLocale.chooseFromGallery: 'Choose from gallery',
     AppLocale.fromGallery: 'From gallery',
     AppLocale.retakePhoto: 'Retake photo',
@@ -576,7 +603,8 @@ class LocaleData {
     AppLocale.createSighting: 'Create Sighting',
     AppLocale.coordinates: 'Coordinates',
     AppLocale.confirm: 'Confirm',
-    AppLocale.savedOffline: 'Sighting saved. It will be uploaded when connection returns (Waiting for network)',
+    AppLocale.savedOffline:
+        'Sighting saved. It will be uploaded when connection returns (Waiting for network)',
 
     // Navigation
     AppLocale.mapLabel: 'Map',
@@ -606,13 +634,16 @@ class LocaleData {
     AppLocale.sightingDetails: 'Sighting Details',
     AppLocale.deleteInProgress: 'Deleting...',
     AppLocale.deleteSightingTooltip: 'Delete sighting',
-    AppLocale.deleteConfirmationMessage: 'Are you sure you want to delete this sighting? This action cannot be undone.',
+    AppLocale.deleteConfirmationMessage:
+        'Are you sure you want to delete this sighting? This action cannot be undone.',
 
     // Collection Screen Extended
     AppLocale.pendingSightingsHeader: 'Pending Sightings',
-    AppLocale.pendingSightingsSubtitle: 'These sightings have not been synced yet',
+    AppLocale.pendingSightingsSubtitle:
+        'These sightings have not been synced yet',
     AppLocale.syncCompleted: 'Synchronization completed',
-    AppLocale.unableToLoadSightings: 'Unable to load sightings. Please try again later.',
+    AppLocale.unableToLoadSightings:
+        'Unable to load sightings. Please try again later.',
     AppLocale.loadingSightings: 'Loading sightings...',
     AppLocale.synchronize: 'Synchronize',
     AppLocale.pendingSightingsCount: 'sighting(s) waiting for network',
@@ -620,9 +651,11 @@ class LocaleData {
 
     // Map Screen Extended
     AppLocale.networkError: 'Connection Error',
-    AppLocale.networkErrorMessage: 'No internet connection. Sightings will be saved locally.',
+    AppLocale.networkErrorMessage:
+        'No internet connection. Sightings will be saved locally.',
     AppLocale.locationError: 'Location Error',
-    AppLocale.locationErrorMessage: 'Unable to get location. A default location will be used.',
+    AppLocale.locationErrorMessage:
+        'Unable to get location. A default location will be used.',
     AppLocale.locationServicesDisabled: 'Location services are disabled',
     AppLocale.locationPermissionDenied: 'Location permission denied',
     AppLocale.details: 'Details',
@@ -647,17 +680,25 @@ class LocaleData {
     AppLocale.clearDefaultSuccess: 'Default model cleared',
 
     // Error Messages
-    AppLocale.errorNetworkConnection: 'Unable to connect to the server. Please check your Internet connection.',
-    AppLocale.errorServerUnavailable: 'The server is currently unavailable. Please try again later.',
+    AppLocale.errorNetworkConnection:
+        'Unable to connect to the server. Please check your Internet connection.',
+    AppLocale.errorServerUnavailable:
+        'The server is currently unavailable. Please try again later.',
     AppLocale.errorInvalidCredentials: 'Invalid email or password.',
-    AppLocale.errorEmailAlreadyExists: 'This email is already registered. Try logging in.',
-    AppLocale.errorInvalidData: 'The data entered is not valid. Please check and try again.',
-    AppLocale.errorUnauthorized: 'You are not authorized to perform this operation.',
+    AppLocale.errorEmailAlreadyExists:
+        'This email is already registered. Try logging in.',
+    AppLocale.errorInvalidData:
+        'The data entered is not valid. Please check and try again.',
+    AppLocale.errorUnauthorized:
+        'You are not authorized to perform this operation.',
     AppLocale.errorNotFound: 'The requested resource was not found.',
-    AppLocale.errorTimeout: 'Request timed out. Check your connection and try again.',
-    AppLocale.errorUnexpected: 'An unexpected error occurred. Please try again later.',
+    AppLocale.errorTimeout:
+        'Request timed out. Check your connection and try again.',
+    AppLocale.errorUnexpected:
+        'An unexpected error occurred. Please try again later.',
     AppLocale.errorInvalidEmail: 'The email address is not valid.',
-    AppLocale.errorWeakPassword: 'The password is too weak. Use at least 6 characters.',
+    AppLocale.errorWeakPassword:
+        'The password is too weak. Use at least 6 characters.',
     AppLocale.errorWrongPassword: 'The password entered is incorrect.',
   };
 }

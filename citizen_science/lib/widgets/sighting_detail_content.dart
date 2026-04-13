@@ -15,7 +15,7 @@ import '../utils/error_handler.dart';
 class SightingDetailSidePanel extends StatelessWidget {
   /// The sighting data to display in the side panel.
   final SightingModel sighting;
-  
+
   /// Callback function executed when the close button is pressed.
   final VoidCallback onClose;
 
@@ -33,7 +33,9 @@ class SightingDetailSidePanel extends StatelessWidget {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: Text(AppLocale.confirmDelete.getString(dialogContext)),
-          content: Text(AppLocale.confirmDeleteMessage.getString(dialogContext)),
+          content: Text(
+            AppLocale.confirmDeleteMessage.getString(dialogContext),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
@@ -65,7 +67,7 @@ class SightingDetailSidePanel extends StatelessWidget {
     final appState = Provider.of<AppStateProvider>(context, listen: false);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final errorColor = Theme.of(context).colorScheme.error;
-    
+
     // Show loading dialog
     if (context.mounted) {
       showDialog(
@@ -90,15 +92,14 @@ class SightingDetailSidePanel extends StatelessWidget {
         },
       );
     }
-    
+
     try {
       await appState.deleteSighting(sighting.id);
-      
+      if (!context.mounted) return;
+
       // Close loading dialog
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-      
+      Navigator.of(context).pop();
+
       // Show success message and close side panel
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -106,16 +107,14 @@ class SightingDetailSidePanel extends StatelessWidget {
           duration: const Duration(seconds: 2),
         ),
       );
-      
-      if (context.mounted) {
-        onClose();
-      }
+
+      onClose();
     } catch (e) {
+      if (!context.mounted) return;
+
       // Close loading dialog
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-      
+      Navigator.of(context).pop();
+
       // Show error message
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -152,7 +151,9 @@ class SightingDetailSidePanel extends StatelessWidget {
               color: Theme.of(context).colorScheme.surface,
               border: Border(
                 bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
             ),
@@ -190,10 +191,7 @@ class SightingDetailSidePanel extends StatelessWidget {
           ),
           // Details content
           Expanded(
-            child: SightingDetailContent(
-              sighting: sighting,
-              showAppBar: false,
-            ),
+            child: SightingDetailContent(sighting: sighting, showAppBar: false),
           ),
         ],
       ),
@@ -208,7 +206,7 @@ class SightingDetailSidePanel extends StatelessWidget {
 class SightingDetailContent extends StatefulWidget {
   /// The sighting data to display.
   final SightingModel sighting;
-  
+
   /// Whether to show an app bar (used in full screen mode).
   final bool showAppBar;
 
@@ -361,10 +359,16 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                             icon: const Icon(Icons.arrow_back_ios),
                             iconSize: _arrowIconSize,
                             style: IconButton.styleFrom(
-                              backgroundColor: Colors.black.withValues(alpha: _arrowBackgroundAlpha),
+                              backgroundColor: Colors.black.withValues(
+                                alpha: _arrowBackgroundAlpha,
+                              ),
                               foregroundColor: Colors.white,
-                              disabledBackgroundColor: Colors.black.withValues(alpha: _arrowDisabledBackgroundAlpha),
-                              disabledForegroundColor: Colors.white.withValues(alpha: _arrowDisabledForegroundAlpha),
+                              disabledBackgroundColor: Colors.black.withValues(
+                                alpha: _arrowDisabledBackgroundAlpha,
+                              ),
+                              disabledForegroundColor: Colors.white.withValues(
+                                alpha: _arrowDisabledForegroundAlpha,
+                              ),
                             ),
                           ),
                         ),
@@ -375,7 +379,9 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                         bottom: 0,
                         child: Center(
                           child: IconButton(
-                            onPressed: _currentImageIndex < widget.sighting.images.length - 1
+                            onPressed:
+                                _currentImageIndex <
+                                    widget.sighting.images.length - 1
                                 ? () {
                                     _pageController.nextPage(
                                       duration: _pageTransitionDuration,
@@ -386,10 +392,16 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                             icon: const Icon(Icons.arrow_forward_ios),
                             iconSize: _arrowIconSize,
                             style: IconButton.styleFrom(
-                              backgroundColor: Colors.black.withValues(alpha: _arrowBackgroundAlpha),
+                              backgroundColor: Colors.black.withValues(
+                                alpha: _arrowBackgroundAlpha,
+                              ),
                               foregroundColor: Colors.white,
-                              disabledBackgroundColor: Colors.black.withValues(alpha: _arrowDisabledBackgroundAlpha),
-                              disabledForegroundColor: Colors.white.withValues(alpha: _arrowDisabledForegroundAlpha),
+                              disabledBackgroundColor: Colors.black.withValues(
+                                alpha: _arrowDisabledBackgroundAlpha,
+                              ),
+                              disabledForegroundColor: Colors.white.withValues(
+                                alpha: _arrowDisabledForegroundAlpha,
+                              ),
                             ),
                           ),
                         ),
@@ -461,7 +473,7 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                     AppLocale.sightedBy.getString(context),
                     widget.sighting.userName,
                   ),
-                  
+
                   // Display AI model information if available (only for researchers)
                   if (_isResearcher && widget.sighting.aiModelUsed != null) ...[
                     const SizedBox(height: 12),
@@ -472,7 +484,8 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                       widget.sighting.aiModelUsed!,
                     ),
                   ],
-                  if (_isResearcher && widget.sighting.aiConfidence != null) ...[
+                  if (_isResearcher &&
+                      widget.sighting.aiConfidence != null) ...[
                     const SizedBox(height: 12),
                     _buildInfoRow(
                       context,
@@ -481,7 +494,7 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                       '${(widget.sighting.aiConfidence! * 100).toStringAsFixed(1)}%',
                     ),
                   ],
-                  
+
                   const SizedBox(height: 24),
 
                   Row(
@@ -499,7 +512,9 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                             if (_isEditing) ...[
                               TextButton(
                                 onPressed: _toggleEdit,
-                                child: Text(AppLocale.cancel.getString(context)),
+                                child: Text(
+                                  AppLocale.cancel.getString(context),
+                                ),
                               ),
                               const SizedBox(width: 8),
                               FilledButton.icon(
@@ -535,7 +550,10 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -555,26 +573,24 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
   }
 
   /// Builds a row displaying an icon, label, and value.
-  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildInfoRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 8),
         Text(
           '$label: ',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         Expanded(
-          child: Text(
-            value,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+          child: Text(value, style: Theme.of(context).textTheme.bodyLarge),
         ),
       ],
     );
@@ -588,7 +604,7 @@ class _SightingDetailContentState extends State<SightingDetailContent> {
 class _FullScreenImageViewer extends StatefulWidget {
   /// List of image URLs to display.
   final List<String> images;
-  
+
   /// The index of the image to display initially.
   final int initialIndex;
 

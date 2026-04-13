@@ -16,7 +16,7 @@ import '../services/offline_storage_service.dart';
 import 'api_service.dart';
 
 /// Provider managing application state including authentication and sightings.
-/// 
+///
 /// Handles user authentication, JWT token management, and sighting data.
 /// Notifies listeners when state changes occur.
 class AppStateProvider extends ChangeNotifier {
@@ -33,16 +33,17 @@ class AppStateProvider extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   UserModel? get currentUser => _currentUser;
   bool get isOnline => _isOnline;
-  
+
   /// Returns sightings created by the current user.
-  List<SightingModel> get userSightings => _sightings.where((s) => s.userId == _currentUser?.id).toList();
-  
+  List<SightingModel> get userSightings =>
+      _sightings.where((s) => s.userId == _currentUser?.id).toList();
+
   /// Returns all cached sightings.
   List<SightingModel> get allSightings => _sightings;
-  
+
   /// Returns pending sightings waiting to be uploaded.
   List<PendingSightingModel> get pendingSightings => _pendingSightings;
-  
+
   ApiService get apiService => _apiService;
 
   AppStateProvider() {
@@ -54,13 +55,13 @@ class AppStateProvider extends ChangeNotifier {
     _connectivityService.startMonitoring((hasConnection) async {
       _isOnline = hasConnection;
       notifyListeners();
-      
+
       if (hasConnection && _isLoggedIn) {
         // Try to sync pending sightings when connection is restored
         await _syncPendingSightings();
       }
     });
-    
+
     // Check initial connectivity
     _connectivityService.hasConnection().then((hasConnection) {
       _isOnline = hasConnection;
@@ -75,25 +76,25 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   /// Checks for stored JWT token and attempts auto-login.
-  /// 
+  ///
   /// Returns true if auto-login succeeds, false otherwise.
   Future<bool> checkAutoLogin() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('jwt_token');
-      
+
       if (token == null) {
         return false;
       }
-      
+
       if (JwtDecoder.isExpired(token)) {
         await logout();
         return false;
       }
-      
+
       _token = token;
       _apiService.setToken(token);
-      
+
       // Try to get user from cache first
       final cachedUser = await _offlineStorage.getCachedUserData();
       if (cachedUser != null) {
@@ -101,7 +102,7 @@ class AppStateProvider extends ChangeNotifier {
         _isLoggedIn = true;
         notifyListeners();
       }
-      
+
       // Try to refresh from API if online
       if (_isOnline) {
         try {
@@ -116,12 +117,12 @@ class AppStateProvider extends ChangeNotifier {
           }
         }
       }
-      
+
       _isLoggedIn = true;
-      
+
       // Load pending sightings
       await _loadPendingSightings();
-      
+
       notifyListeners();
       return true;
     } catch (e) {
@@ -131,29 +132,29 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   /// Authenticates user with email and password.
-  /// 
+  ///
   /// Stores JWT token and updates current user state on success.
   Future<void> login(String email, String password) async {
     try {
       final request = LoginRequest(email: email, password: password);
       final authResponse = await _apiService.login(request);
-      
+
       _token = authResponse.token;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('jwt_token', _token!);
-      
+
       _currentUser = _mapUserResponseToModel(authResponse.user);
       await _offlineStorage.cacheUserData(_currentUser!);
       _isLoggedIn = true;
-      
+
       // Load pending sightings
       await _loadPendingSightings();
-      
+
       // Try to sync pending sightings
       if (_isOnline) {
         await _syncPendingSightings();
       }
-      
+
       notifyListeners();
     } catch (e) {
       rethrow;
@@ -161,9 +162,15 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   /// Registers a new user account.
-  /// 
+  ///
   /// Stores JWT token and updates current user state on success.
-  Future<void> register(String firstName, String lastName, String email, String password, {String ruolo = 'utente'}) async {
+  Future<void> register(
+    String firstName,
+    String lastName,
+    String email,
+    String password, {
+    String ruolo = 'utente',
+  }) async {
     try {
       final request = RegisterRequest(
         nome: firstName,
@@ -173,18 +180,18 @@ class AppStateProvider extends ChangeNotifier {
         ruolo: ruolo,
       );
       final authResponse = await _apiService.register(request);
-      
+
       _token = authResponse.token;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('jwt_token', _token!);
-      
+
       _currentUser = _mapUserResponseToModel(authResponse.user);
       await _offlineStorage.cacheUserData(_currentUser!);
       _isLoggedIn = true;
-      
+
       // Load pending sightings
       await _loadPendingSightings();
-      
+
       notifyListeners();
     } catch (e) {
       rethrow;
@@ -196,7 +203,7 @@ class AppStateProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
     await _offlineStorage.clearCachedUserData();
-    
+
     _token = null;
     _apiService.setToken(null);
     _currentUser = null;
@@ -232,11 +239,15 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   /// Updates user information via API and refreshes local state.
-  Future<void> updateUserInfoApi(String firstName, String lastName, String email) async {
+  Future<void> updateUserInfoApi(
+    String firstName,
+    String lastName,
+    String email,
+  ) async {
     if (!_isOnline) {
       throw Exception('Nessuna connessione di rete. Riprova');
     }
-    
+
     try {
       final request = UpdateUserRequest(
         nome: firstName,
@@ -279,7 +290,7 @@ class AppStateProvider extends ChangeNotifier {
   Future<void> deleteSighting(String sightingId) async {
     try {
       await _apiService.deleteSighting(sightingId);
-      
+
       _sightings.removeWhere((s) => s.id == sightingId);
       notifyListeners();
     } catch (e) {
@@ -298,7 +309,8 @@ class AppStateProvider extends ChangeNotifier {
       userName = response.userCognome!;
     }
 
-    String address = response.indirizzo ?? 
+    String address =
+        response.indirizzo ??
         '${response.latitudine.toStringAsFixed(4)}, ${response.longitudine.toStringAsFixed(4)}';
 
     List<String> photoUrls = UrlUtils.toAbsoluteUrls(response.photoUrls);
@@ -322,21 +334,23 @@ class AppStateProvider extends ChangeNotifier {
   /// Fetches sightings created by the current user from the API.
   Future<void> fetchUserSightings() async {
     if (_currentUser == null) return;
-    
+
     if (!_isOnline) {
       throw Exception('Nessuna connessione di rete. Riprova');
     }
-    
+
     try {
-      final sightingsResponse = await _apiService.getSightingsByUser(_currentUser!.id);
-      
+      final sightingsResponse = await _apiService.getSightingsByUser(
+        _currentUser!.id,
+      );
+
       _sightings.removeWhere((s) => s.userId == _currentUser!.id);
-      
-      final mappedSightings = sightingsResponse.map((response) => 
-        _mapSightingResponseToModel(response)
-      ).toList();
+
+      final mappedSightings = sightingsResponse
+          .map((response) => _mapSightingResponseToModel(response))
+          .toList();
       _sightings.addAll(mappedSightings);
-      
+
       notifyListeners();
     } catch (e) {
       rethrow;
@@ -344,7 +358,7 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   /// Fetches sightings within a radius of a geographic location from the API.
-  /// 
+  ///
   /// Returns sightings within [radiusKm] kilometers of coordinates [lat], [lng].
   Future<List<SightingModel>> fetchSightingsByLocation({
     required double lat,
@@ -354,18 +368,18 @@ class AppStateProvider extends ChangeNotifier {
     if (!_isOnline) {
       throw Exception('Nessuna connessione di rete. Riprova');
     }
-    
+
     try {
       final sightingsResponse = await _apiService.getSightingsByLocation(
         lat: lat,
         lng: lng,
         radiusKm: radiusKm,
       );
-      
-      final sightings = sightingsResponse.map((response) => 
-        _mapSightingResponseToModel(response)
-      ).toList();
-      
+
+      final sightings = sightingsResponse
+          .map((response) => _mapSightingResponseToModel(response))
+          .toList();
+
       for (var sighting in sightings) {
         final existingIndex = _sightings.indexWhere((s) => s.id == sighting.id);
         if (existingIndex != -1) {
@@ -374,7 +388,7 @@ class AppStateProvider extends ChangeNotifier {
           _sightings.add(sighting);
         }
       }
-      
+
       notifyListeners();
       return sightings;
     } catch (e) {
@@ -383,7 +397,7 @@ class AppStateProvider extends ChangeNotifier {
   }
 
   /// Creates a new sighting, either online or offline.
-  /// 
+  ///
   /// If online, uploads immediately. If offline, saves to pending queue.
   /// When [aiModel] is provided it is sent to the backend as an override for
   /// this sighting only and does NOT change the user's default model selection.
@@ -411,26 +425,28 @@ class AppStateProvider extends ChangeNotifier {
         // If fails, fall through to offline mode
       }
     }
-    
+
     // Save as pending sighting
     final id = DateTime.now().millisecondsSinceEpoch.toString();
-    
+
     // Copy photo to persistent storage
     final photoPaths = <String>[];
     try {
-      final newPath = await _offlineStorage.copyFileToPersistentStorage(photo.path);
-      
+      final newPath = await _offlineStorage.copyFileToPersistentStorage(
+        photo.path,
+      );
+
       // For web, also store the actual photo bytes in IndexedDB
       // For native platforms, this is a no-op
       final bytes = await photo.readAsBytes();
       await _offlineStorage.storePhotoBytes(newPath, bytes);
-      
+
       photoPaths.add(newPath);
     } catch (e) {
       // If photo storage fails (web or native), skip
       debugPrint('Failed to store photo: $e');
     }
-    
+
     final pendingSighting = PendingSightingModel(
       id: id,
       photoPaths: photoPaths,
@@ -440,7 +456,7 @@ class AppStateProvider extends ChangeNotifier {
       notes: notes,
       createdAt: DateTime.now(),
     );
-    
+
     await _offlineStorage.savePendingSighting(pendingSighting);
     _pendingSightings.add(pendingSighting);
     notifyListeners();
@@ -457,9 +473,9 @@ class AppStateProvider extends ChangeNotifier {
   /// Syncs pending sightings to the server when online.
   Future<void> _syncPendingSightings() async {
     if (!_isOnline || _pendingSightings.isEmpty) return;
-    
+
     final pendingCopy = List<PendingSightingModel>.from(_pendingSightings);
-    
+
     for (final pending in pendingCopy) {
       try {
         if (pending.photoPaths.isEmpty) continue;
@@ -481,7 +497,7 @@ class AppStateProvider extends ChangeNotifier {
           // Fall back to creating from path
           photo = XFile(path);
         }
-        
+
         await _apiService.createSighting(
           photo: photo,
           data: pending.date,
@@ -489,17 +505,16 @@ class AppStateProvider extends ChangeNotifier {
           longitudine: pending.longitude,
           note: pending.notes,
         );
-        
+
         // Remove from pending after successful upload
         await _offlineStorage.removePendingSighting(pending.id);
         await _offlineStorage.deletePendingPhotos(pending.photoPaths);
         _pendingSightings.removeWhere((s) => s.id == pending.id);
-        
       } catch (e) {
         // Continue with other pending sightings if one fails
       }
     }
-    
+
     notifyListeners();
   }
 

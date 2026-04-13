@@ -3,7 +3,7 @@ import '../providers/api_service.dart';
 /// Utility class for URL transformations.
 class UrlUtils {
   /// Converts a relative URL to an absolute URL using the base API URL.
-  /// 
+  ///
   /// If [url] is already absolute (starts with http:// or https://),
   /// returns it unchanged. Otherwise, prepends the base URL.
   static String toAbsoluteUrl(String url) {

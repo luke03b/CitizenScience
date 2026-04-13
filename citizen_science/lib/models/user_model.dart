@@ -1,5 +1,5 @@
 /// Model representing a user in the Citizen Science app.
-/// 
+///
 /// Contains user profile information including name, email, and role.
 class UserModel {
   final String id;
@@ -18,7 +18,7 @@ class UserModel {
 
   /// Returns the full name combining first and last name.
   String get fullName => '$firstName $lastName';
-  
+
   /// Returns true if the user has the researcher role.
   bool get isResearcher => role?.toLowerCase() == 'ricercatore';
 }

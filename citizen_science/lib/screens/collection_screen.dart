@@ -28,7 +28,7 @@ enum SortOption {
 }
 
 /// Screen displaying the user's collection of flower sightings.
-/// 
+///
 /// Provides multiple view modes (card/list), sorting options, and responsive
 /// layout. On desktop, shows details in a side panel; on mobile, navigates
 /// to a separate detail screen.
@@ -57,7 +57,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
   /// Fetches all sightings created by the current user.
   Future<void> _loadUserSightings() async {
     final errorMessage = AppLocale.unableToLoadSightings.getString(context);
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -82,7 +82,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
   }
 
   /// Requests and retrieves the user's current location.
-  /// 
+  ///
   /// Used for distance-based sorting. Fails silently if location
   /// permission is not granted or location services are unavailable.
   Future<void> _getUserLocation() async {
@@ -94,7 +94,8 @@ class _CollectionScreenState extends State<CollectionScreen> {
       }
       if (permission == LocationPermission.denied) {
         final newPermission = await Geolocator.requestPermission();
-        if (newPermission == LocationPermission.denied || newPermission == LocationPermission.deniedForever) {
+        if (newPermission == LocationPermission.denied ||
+            newPermission == LocationPermission.deniedForever) {
           return;
         }
       }
@@ -103,17 +104,24 @@ class _CollectionScreenState extends State<CollectionScreen> {
         _userPosition = position;
       });
     } catch (e) {
+      // Ignore location failures and keep distance-based UI optional.
     }
   }
 
   /// Calculates the distance between two geographic coordinates using the Haversine formula.
-  /// 
+  ///
   /// Returns distance in kilometers.
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+  double _calculateDistance(
+    double lat1,
+    double lon1,
+    double lat2,
+    double lon2,
+  ) {
     const earthRadius = 6371; // km
     final dLat = _toRadians(lat2 - lat1);
     final dLon = _toRadians(lon2 - lon1);
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
         math.cos(_toRadians(lat1)) *
             math.cos(_toRadians(lat2)) *
             math.sin(dLon / 2) *
@@ -127,7 +135,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
   }
 
   /// Calculates the distance from the user's current location to a sighting.
-  /// 
+  ///
   /// Returns 0 if user location is not available.
   double _getDistanceFromUser(SightingModel sighting) {
     if (_userPosition == null) return 0;
@@ -140,11 +148,11 @@ class _CollectionScreenState extends State<CollectionScreen> {
   }
 
   /// Sorts the list of sightings based on the current [_sortOption].
-  /// 
+  ///
   /// Returns a new sorted list without modifying the original.
   List<SightingModel> _sortSightings(List<SightingModel> sightings) {
     final sorted = List<SightingModel>.from(sightings);
-    
+
     switch (_sortOption) {
       case SortOption.mostRecent:
         sorted.sort((a, b) => b.date.compareTo(a.date));
@@ -154,12 +162,18 @@ class _CollectionScreenState extends State<CollectionScreen> {
         break;
       case SortOption.closest:
         if (_userPosition != null) {
-          sorted.sort((a, b) => _getDistanceFromUser(a).compareTo(_getDistanceFromUser(b)));
+          sorted.sort(
+            (a, b) =>
+                _getDistanceFromUser(a).compareTo(_getDistanceFromUser(b)),
+          );
         }
         break;
       case SortOption.farthest:
         if (_userPosition != null) {
-          sorted.sort((a, b) => _getDistanceFromUser(b).compareTo(_getDistanceFromUser(a)));
+          sorted.sort(
+            (a, b) =>
+                _getDistanceFromUser(b).compareTo(_getDistanceFromUser(a)),
+          );
         }
         break;
       case SortOption.alphabeticalAsc:
@@ -169,7 +183,7 @@ class _CollectionScreenState extends State<CollectionScreen> {
         sorted.sort((a, b) => b.flowerName.compareTo(a.flowerName));
         break;
     }
-    
+
     return sorted;
   }
 
@@ -209,13 +223,14 @@ class _CollectionScreenState extends State<CollectionScreen> {
   }
 
   /// Builds the desktop layout with collection view on left and detail panel on right.
-  Widget _buildDesktopLayout(List<SightingModel> sightings, AppStateProvider appState) {
+  Widget _buildDesktopLayout(
+    List<SightingModel> sightings,
+    AppStateProvider appState,
+  ) {
     return Row(
       children: [
         // Collection view on the left
-        Expanded(
-          child: _buildCollectionView(sightings, appState),
-        ),
+        Expanded(child: _buildCollectionView(sightings, appState)),
         // Details panel on the right
         SightingDetailSidePanel(
           sighting: _selectedSighting!,
@@ -230,9 +245,12 @@ class _CollectionScreenState extends State<CollectionScreen> {
   }
 
   /// Builds the main collection view with controls and content.
-  Widget _buildCollectionView(List<SightingModel> sightings, AppStateProvider appState) {
+  Widget _buildCollectionView(
+    List<SightingModel> sightings,
+    AppStateProvider appState,
+  ) {
     final hasPending = appState.pendingSightings.isNotEmpty;
-    
+
     return Column(
       children: [
         // Pending sightings banner
@@ -247,7 +265,10 @@ class _CollectionScreenState extends State<CollectionScreen> {
                 Expanded(
                   child: Text(
                     '${appState.pendingSightings.length} ${AppLocale.pendingSightingsCount.getString(context)}',
-                    style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 if (appState.isOnline)
@@ -256,7 +277,11 @@ class _CollectionScreenState extends State<CollectionScreen> {
                       await appState.syncPendingSightings();
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(AppLocale.syncCompleted.getString(context))),
+                          SnackBar(
+                            content: Text(
+                              AppLocale.syncCompleted.getString(context),
+                            ),
+                          ),
                         );
                       }
                     },
@@ -299,7 +324,9 @@ class _CollectionScreenState extends State<CollectionScreen> {
                       },
                       color: _viewMode == ViewMode.card
                           ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                     IconButton(
                       icon: const Icon(Icons.list),
@@ -310,7 +337,9 @@ class _CollectionScreenState extends State<CollectionScreen> {
                       },
                       color: _viewMode == ViewMode.list
                           ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          : Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ],
                 ),
@@ -343,89 +372,100 @@ class _CollectionScreenState extends State<CollectionScreen> {
         // Content
         Expanded(
           child: _isLoading
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
+              ? const Center(child: CircularProgressIndicator())
               : _errorMessage != null
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Text(
-                              _errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: _loadUserSightings,
-                            icon: const Icon(Icons.refresh),
-                            label: Text(AppLocale.retry.getString(context)),
-                          ),
-                        ],
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Theme.of(context).colorScheme.error,
                       ),
-                    )
-                  : sightings.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.collections,
-                                size: 100,
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                AppLocale.noSightings.getString(context),
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                                    ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                AppLocale.yourSightingsWillAppearHere.getString(context),
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-                                    ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : _viewMode == ViewMode.card
-                          ? _buildCardView(sightings)
-                          : _buildListView(sightings),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          _errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: _loadUserSightings,
+                        icon: const Icon(Icons.refresh),
+                        label: Text(AppLocale.retry.getString(context)),
+                      ),
+                    ],
+                  ),
+                )
+              : sightings.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.collections,
+                        size: 100,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.3),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        AppLocale.noSightings.getString(context),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppLocale.yourSightingsWillAppearHere.getString(
+                          context,
+                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : _viewMode == ViewMode.card
+              ? _buildCardView(sightings)
+              : _buildListView(sightings),
         ),
       ],
     );
   }
 
   /// Builds a responsive grid view of sighting cards.
-  /// 
+  ///
   /// Adapts the number of columns based on screen width.
   Widget _buildCardView(List<SightingModel> sightings) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final crossAxisCount = width < _kMobileBreakpoint 
-            ? 1 
-            : (width < _kTabletBreakpoint ? 2 : (width < _kDesktopBreakpoint ? 3 : 4));
-        
+        final crossAxisCount = width < _kMobileBreakpoint
+            ? 1
+            : (width < _kTabletBreakpoint
+                  ? 2
+                  : (width < _kDesktopBreakpoint ? 3 : 4));
+
         // Calculate card aspect ratio: image (16:9) + fixed details height (120px)
-        final cardWidth = (width - (16.0 * 2) - (16.0 * (crossAxisCount - 1))) / crossAxisCount;
+        final cardWidth =
+            (width - (16.0 * 2) - (16.0 * (crossAxisCount - 1))) /
+            crossAxisCount;
         final imageHeight = cardWidth / (16 / 9);
         final cardHeight = imageHeight + 120;
         final childAspectRatio = cardWidth / cardHeight;
-        
+
         return RefreshIndicator(
           onRefresh: _loadUserSightings,
           child: GridView.builder(
@@ -456,7 +496,8 @@ class _CollectionScreenState extends State<CollectionScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SightingDetailScreen(sighting: sighting),
+                        builder: (context) =>
+                            SightingDetailScreen(sighting: sighting),
                       ),
                     );
                   }
@@ -494,9 +535,8 @@ class _CollectionScreenState extends State<CollectionScreen> {
                 // On mobile, navigate to detail screen
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => SightingDetailScreen(
-                      sighting: sighting,
-                    ),
+                    builder: (context) =>
+                        SightingDetailScreen(sighting: sighting),
                   ),
                 );
               }
@@ -513,19 +553,14 @@ class _SightingListItem extends StatelessWidget {
   final SightingModel sighting;
   final VoidCallback onTap;
 
-  const _SightingListItem({
-    required this.sighting,
-    required this.onTap,
-  });
+  const _SightingListItem({required this.sighting, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
@@ -549,7 +584,9 @@ class _SightingListItem extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ],
           ),
