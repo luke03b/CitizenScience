@@ -107,10 +107,12 @@ docker compose logs -f ai_service
 
 ## CI/CD and Code Quality
 
-The repository includes multiple GitHub Actions workflows for backend validation and security checks.
+The repository includes multiple GitHub Actions workflows for frontend and backend validation, plus security checks.
 
 | Workflow | File | Trigger | Purpose |
 |----------|------|---------|---------|
+| Frontend Tests | `.github/workflows/frontend-tests.yml` | push, pull_request, manual | Runs the frontend test suite with Flutter (`flutter test`). |
+| Frontend Quality | `.github/workflows/frontend-quality.yml` | push, pull_request, manual | Runs frontend quality checks (`dart format --set-exit-if-changed` and `flutter analyze`). |
 | Backend Tests | `.github/workflows/backend-tests.yml` | push, pull_request, manual | Runs the backend test suite with Maven (`clean test`). |
 | Backend Quality | `.github/workflows/backend-quality.yml` | push, pull_request, manual | Runs backend quality checks with Maven (`clean verify`). |
 | CodeQL | `.github/workflows/codeql.yml` | push, pull_request, weekly schedule | Performs static security analysis for Java/Kotlin. |
@@ -124,10 +126,12 @@ Dependency updates are also automated through Dependabot:
 
 To enforce quality gates before merge, enable branch protection on `main` and require these checks:
 
-1. `Backend Tests / test-backend`
-2. `Backend Quality / quality-backend`
-3. `CodeQL / Analyze Java with CodeQL`
-4. `Dependency Review / dependency-review`
+1. `Frontend Tests / test-frontend`
+2. `Frontend Quality / quality-frontend`
+3. `Backend Tests / test-backend`
+4. `Backend Quality / quality-backend`
+5. `CodeQL / Analyze Java with CodeQL`
+6. `Dependency Review / dependency-review`
 
 ## Local SonarQube (Optional)
 
