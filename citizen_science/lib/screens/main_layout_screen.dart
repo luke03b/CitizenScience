@@ -10,7 +10,7 @@ import 'collection_screen.dart';
 import 'settings_screen.dart';
 
 /// Main application layout screen with adaptive navigation.
-/// 
+///
 /// Provides navigation between Map, Collection, and Settings screens.
 /// Adapts UI based on platform: shows a drawer for web browsers and
 /// a bottom navigation bar for standalone PWA installations.
@@ -33,31 +33,32 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   @override
   Widget build(BuildContext context) {
     final isStandalone = PlatformUtils.isStandalonePWA();
-    
+
     return Scaffold(
       appBar: CustomAppBar(
         title: AppLocale.citizenScience.getString(context),
         showLogo: true,
-        leading: !isStandalone ? Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer();
-            },
-          ),
-        ) : null,
+        leading: !isStandalone
+            ? Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+              )
+            : null,
       ),
       drawer: !isStandalone ? _buildDrawer(context) : null,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: isStandalone ? _buildBottomNavigationBar(context) : null,
+      body: IndexedStack(index: _currentIndex, children: _screens),
+      bottomNavigationBar: isStandalone
+          ? _buildBottomNavigationBar(context)
+          : null,
     );
   }
 
   /// Builds the drawer navigation for web browser mode.
-  /// 
+  ///
   /// Displays map and collection items at the top, with settings at the bottom.
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
@@ -83,7 +84,9 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                 ),
                 ListTile(
                   leading: Icon(
-                    _currentIndex == 1 ? Icons.collections : Icons.collections_outlined,
+                    _currentIndex == 1
+                        ? Icons.collections
+                        : Icons.collections_outlined,
                   ),
                   title: Text(AppLocale.collectionLabel.getString(context)),
                   selected: _currentIndex == 1,
@@ -103,14 +106,19 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
             builder: (context, localeProvider, child) {
               final isItalian = localeProvider.locale.languageCode == 'it';
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.language,
                       size: 20,
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 8),
                     _LanguageToggleButton(
@@ -152,7 +160,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   }
 
   /// Builds the bottom navigation bar for standalone PWA mode.
-  /// 
+  ///
   /// Provides quick access to Map, Collection, and Settings screens.
   Widget _buildBottomNavigationBar(BuildContext context) {
     return NavigationBar(
@@ -217,10 +225,14 @@ class _LanguageToggleButton extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+          color: isSelected
+              ? colorScheme.primary
+              : colorScheme.surfaceContainerHighest,
           borderRadius: borderRadius,
           border: Border.all(
-            color: isSelected ? colorScheme.primary : colorScheme.outline.withOpacity(0.4),
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.outline.withValues(alpha: 0.4),
           ),
         ),
         child: Row(
@@ -232,7 +244,9 @@ class _LanguageToggleButton extends StatelessWidget {
               label,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+                color: isSelected
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurface,
               ),
             ),
           ],

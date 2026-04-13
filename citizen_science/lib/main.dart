@@ -24,7 +24,7 @@ void main() async {
 }
 
 /// Root widget of the Citizen Science application.
-/// 
+///
 /// Sets up the MaterialApp with theme management, localization and navigation.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -62,7 +62,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, themeProvider, localeProvider, child) {
         // Update localization when locale changes
         _localization.translate(localeProvider.locale.languageCode);
-        
+
         return MaterialApp(
           title: 'Citizen Science',
           debugShowCheckedModeBanner: false,

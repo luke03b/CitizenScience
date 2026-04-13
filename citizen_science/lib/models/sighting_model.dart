@@ -1,5 +1,5 @@
 /// Model representing a wildlife sighting in the Citizen Science app.
-/// 
+///
 /// Contains information about the sighting including location,
 /// date, images, and associated user data.
 class SightingModel {
@@ -33,7 +33,7 @@ class SightingModel {
 
   /// Returns the first image URL, or empty string if no images.
   String get firstImage => images.isNotEmpty ? images.first : '';
-  
+
   /// Returns the date formatted as DD/MM/YYYY.
   String get formattedDate => '${date.day}/${date.month}/${date.year}';
 }

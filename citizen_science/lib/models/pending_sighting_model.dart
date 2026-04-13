@@ -1,5 +1,5 @@
 /// Model representing a sighting waiting to be uploaded to the server.
-/// 
+///
 /// Contains all necessary information to create a sighting once network
 /// connection is restored, including photos stored as base64 strings.
 class PendingSightingModel {

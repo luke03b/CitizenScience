@@ -8,17 +8,14 @@ import '../widgets/sighting_detail_content.dart';
 import '../utils/error_handler.dart';
 
 /// Detail screen for viewing a single flower sighting.
-/// 
+///
 /// Displays comprehensive information about the sighting and allows the owner
 /// to delete it. Shows an app bar with delete action if the current user
 /// is the owner of the sighting.
 class SightingDetailScreen extends StatelessWidget {
   final SightingModel sighting;
 
-  const SightingDetailScreen({
-    super.key,
-    required this.sighting,
-  });
+  const SightingDetailScreen({super.key, required this.sighting});
 
   /// Shows a confirmation dialog before deleting the sighting.
   Future<void> _showDeleteConfirmation(BuildContext context) async {
@@ -50,14 +47,14 @@ class SightingDetailScreen extends StatelessWidget {
   }
 
   /// Deletes the sighting from the backend and updates the UI.
-  /// 
+  ///
   /// Shows a loading dialog during deletion and displays success/error
   /// messages. Navigates back to the previous screen on success.
   Future<void> _deleteSighting(BuildContext context) async {
     final appState = Provider.of<AppStateProvider>(context, listen: false);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
-    
+
     // Show loading dialog
     if (context.mounted) {
       showDialog(
@@ -82,15 +79,14 @@ class SightingDetailScreen extends StatelessWidget {
         },
       );
     }
-    
+
     try {
       await appState.deleteSighting(sighting.id);
-      
+      if (!context.mounted) return;
+
       // Close loading dialog
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-      
+      navigator.pop();
+
       // Show success message and navigate back
       scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -100,11 +96,11 @@ class SightingDetailScreen extends StatelessWidget {
       );
       navigator.pop();
     } catch (e) {
+      if (!context.mounted) return;
+
       // Close loading dialog
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-      
+      navigator.pop();
+
       // Show error message
       scaffoldMessenger.showSnackBar(
         SnackBar(

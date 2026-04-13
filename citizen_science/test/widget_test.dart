@@ -1,30 +1,97 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:citizen_science/main.dart';
+import 'package:citizen_science/providers/theme_provider.dart';
+import 'package:citizen_science/providers/locale_provider.dart';
 
+/// Smoke test verifying that core providers can be instantiated and
+/// wired up into a widget tree without crashing.
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('App providers smoke tests', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    testWidgets(
+      'given ThemeProvider and LocaleProvider when app built then renders MaterialApp',
+      (WidgetTester tester) async {
+        // Arrange
+        final themeProvider = ThemeProvider();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+        // Act
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
+              ChangeNotifierProvider(create: (_) => LocaleProvider()),
+            ],
+            child: Consumer<ThemeProvider>(
+              builder: (context, theme, _) => MaterialApp(
+                theme: theme.currentTheme,
+                home: const Scaffold(body: SizedBox()),
+              ),
+            ),
+          ),
+        );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+        // Assert
+        expect(find.byType(MaterialApp), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'given light ThemeProvider when consumed then MaterialApp uses light theme',
+      (WidgetTester tester) async {
+        // Arrange
+        final themeProvider = ThemeProvider(); // starts in light mode
+
+        // Act
+        await tester.pumpWidget(
+          ChangeNotifierProvider<ThemeProvider>.value(
+            value: themeProvider,
+            child: Consumer<ThemeProvider>(
+              builder: (context, theme, _) => MaterialApp(
+                theme: theme.currentTheme,
+                home: const Scaffold(body: SizedBox()),
+              ),
+            ),
+          ),
+        );
+
+        // Assert
+        final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+        expect(app.theme?.brightness, Brightness.light);
+      },
+    );
+
+    testWidgets(
+      'given ThemeProvider when toggled then MaterialApp rebuilds with dark theme',
+      (WidgetTester tester) async {
+        // Arrange
+        final themeProvider = ThemeProvider();
+
+        await tester.pumpWidget(
+          ChangeNotifierProvider<ThemeProvider>.value(
+            value: themeProvider,
+            child: Consumer<ThemeProvider>(
+              builder: (context, theme, _) => MaterialApp(
+                theme: theme.currentTheme,
+                home: const Scaffold(body: SizedBox()),
+              ),
+            ),
+          ),
+        );
+
+        // Act
+        themeProvider.toggleTheme();
+        await tester.pump();
+
+        // Assert
+        final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+        expect(app.theme?.brightness, Brightness.dark);
+      },
+    );
   });
 }

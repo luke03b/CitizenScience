@@ -14,7 +14,7 @@ import '../l10n/app_locale.dart';
 import 'ai_model_selection_screen.dart';
 
 /// Screen for creating a new sighting with photos and location.
-/// 
+///
 /// Allows users to capture or select photos, set location via GPS or map,
 /// add notes, and submit the sighting to the backend.
 /// Researchers can additionally override the AI model used for identification
@@ -32,7 +32,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   final _notesController = TextEditingController();
   final _latitudeController = TextEditingController();
   final _longitudeController = TextEditingController();
-  
+
   XFile? _selectedImage;
   DateTime _selectedDate = DateTime.now();
   bool _isLoading = false;
@@ -93,17 +93,25 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   /// Fetches the current GPS location and updates the text fields.
   Future<void> _getCurrentLocation() async {
     setState(() => _locationLoading = true);
-    
+
     try {
       final result = await LocationUtils.getCurrentLocation();
-      
+
       if (mounted) {
         if (result.success && result.position != null) {
-          _latitudeController.text = result.position!.latitude.toStringAsFixed(6);
-          _longitudeController.text = result.position!.longitude.toStringAsFixed(6);
+          _latitudeController.text = result.position!.latitude.toStringAsFixed(
+            6,
+          );
+          _longitudeController.text = result.position!.longitude
+              .toStringAsFixed(6);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.errorMessage ?? AppLocale.unknownError.getString(context))),
+            SnackBar(
+              content: Text(
+                result.errorMessage ??
+                    AppLocale.unknownError.getString(context),
+              ),
+            ),
           );
         }
       }
@@ -119,8 +127,9 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
     // Get initial position from text fields or use default
     double initialLat = 45.4642; // Milano default
     double initialLng = 9.1900;
-    
-    if (_latitudeController.text.isNotEmpty && _longitudeController.text.isNotEmpty) {
+
+    if (_latitudeController.text.isNotEmpty &&
+        _longitudeController.text.isNotEmpty) {
       final lat = double.tryParse(_latitudeController.text);
       final lng = double.tryParse(_longitudeController.text);
       if (lat != null && lng != null) {
@@ -131,9 +140,8 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
 
     final result = await showDialog<LatLng>(
       context: context,
-      builder: (context) => _MapPickerDialog(
-        initialPosition: LatLng(initialLat, initialLng),
-      ),
+      builder: (context) =>
+          _MapPickerDialog(initialPosition: LatLng(initialLat, initialLng)),
     );
 
     if (result != null) {
@@ -156,9 +164,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocale.cameraError.getString(context)),
-        ),
+        SnackBar(content: Text(AppLocale.cameraError.getString(context))),
       );
     }
   }
@@ -175,9 +181,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocale.galleryError.getString(context)),
-        ),
+        SnackBar(content: Text(AppLocale.galleryError.getString(context))),
       );
     }
   }
@@ -190,13 +194,17 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    
+
+    if (!mounted) return;
+
     if (picked != null && picked != _selectedDate) {
       final TimeOfDay? time = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.fromDateTime(_selectedDate),
       );
-      
+
+      if (!mounted) return;
+
       if (time != null) {
         setState(() {
           _selectedDate = DateTime(
@@ -214,7 +222,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   /// Validates inputs and submits the sighting to the API.
   Future<void> _submitSighting() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocale.photoRequired.getString(context))),
@@ -226,11 +234,11 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
       _latitudeController.text,
       _longitudeController.text,
     );
-    
+
     if (!validation.isValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(validation.errorMessage!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(validation.errorMessage!)));
       return;
     }
 
@@ -241,7 +249,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
 
     try {
       final appState = Provider.of<AppStateProvider>(context, listen: false);
-      
+
       await appState.createSighting(
         photo: _selectedImage!,
         date: _selectedDate,
@@ -253,7 +261,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
 
       if (!mounted) return;
 
-      final message = appState.isOnline 
+      final message = appState.isOnline
           ? AppLocale.creationSuccess.getString(context)
           : AppLocale.savedOffline.getString(context);
 
@@ -268,7 +276,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
       Navigator.of(context).pop(true);
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ErrorHandler.getErrorMessage(context, e)),
@@ -292,9 +300,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocale.newSighting.getString(context)),
-      ),
+      appBar: AppBar(title: Text(AppLocale.newSighting.getString(context))),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -323,16 +329,18 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
         Text(
           AppLocale.addPhoto.getString(context),
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         Text(
           AppLocale.addPhotoDescription.getString(context),
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 48),
@@ -423,7 +431,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          
+
           // Date picker
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -440,14 +448,15 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Location picker
           ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             leading: const Icon(Icons.location_on),
             title: Text(AppLocale.location.getString(context)),
             subtitle: Text(
-              _latitudeController.text.isNotEmpty && _longitudeController.text.isNotEmpty
+              _latitudeController.text.isNotEmpty &&
+                      _longitudeController.text.isNotEmpty
                   ? '${_latitudeController.text}, ${_longitudeController.text}'
                   : AppLocale.selectLocation.getString(context),
             ),
@@ -468,10 +477,14 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.my_location),
-            label: Text(_locationLoading ? AppLocale.loading.getString(context) : AppLocale.useCurrentLocation.getString(context)),
+            label: Text(
+              _locationLoading
+                  ? AppLocale.loading.getString(context)
+                  : AppLocale.useCurrentLocation.getString(context),
+            ),
           ),
           const SizedBox(height: 16),
-          
+
           // Notes field
           CustomTextField(
             controller: _notesController,
@@ -489,13 +502,16 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
               }
               final modelLabel = _isLoadingModel
                   ? AppLocale.loading.getString(context)
-                  : (_selectedAiModel ?? AppLocale.useDefaultModel.getString(context));
+                  : (_selectedAiModel ??
+                        AppLocale.useDefaultModel.getString(context));
               return Column(
                 children: [
                   ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                     leading: const Icon(Icons.smart_toy),
-                    title: Text(AppLocale.aiModelForThisSighting.getString(context)),
+                    title: Text(
+                      AppLocale.aiModelForThisSighting.getString(context),
+                    ),
                     subtitle: Text(modelLabel),
                     trailing: const Icon(Icons.edit),
                     onTap: _isLoadingModel ? null : _changeAiModel,
@@ -509,7 +525,7 @@ class _CreateSightingScreenState extends State<CreateSightingScreen> {
               );
             },
           ),
-          
+
           CustomButton(
             text: AppLocale.createSighting.getString(context),
             onPressed: _submitSighting,
@@ -564,7 +580,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
 
     try {
       final result = await LocationUtils.getCurrentLocation();
-      
+
       if (mounted) {
         if (result.success && result.position != null) {
           final currentLocation = LatLng(
@@ -577,7 +593,12 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
           _mapController.move(currentLocation, 15);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result.errorMessage ?? AppLocale.unknownError.getString(context))),
+            SnackBar(
+              content: Text(
+                result.errorMessage ??
+                    AppLocale.unknownError.getString(context),
+              ),
+            ),
           );
         }
       }
@@ -593,10 +614,7 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
     return Dialog(
       insetPadding: const EdgeInsets.all(16),
       child: Container(
-        constraints: const BoxConstraints(
-          maxWidth: 600,
-          maxHeight: 700,
-        ),
+        constraints: const BoxConstraints(maxWidth: 600, maxHeight: 700),
         child: Column(
           children: [
             // Header
@@ -639,7 +657,8 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     ),
                     children: [
                       TileLayer(
-                        urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        urlTemplate:
+                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                         userAgentPackageName: 'com.example.citizen_science',
                       ),
                       MarkerLayer(
@@ -664,7 +683,9 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                     right: 16,
                     child: FloatingActionButton(
                       mini: true,
-                      onPressed: _isLoadingLocation ? null : _goToCurrentLocation,
+                      onPressed: _isLoadingLocation
+                          ? null
+                          : _goToCurrentLocation,
                       backgroundColor: Colors.white,
                       child: _isLoadingLocation
                           ? const SizedBox(
@@ -699,7 +720,8 @@ class _MapPickerDialogState extends State<_MapPickerDialog> {
                       ),
                       const SizedBox(width: 8),
                       ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(_selectedPosition),
+                        onPressed: () =>
+                            Navigator.of(context).pop(_selectedPosition),
                         child: Text(AppLocale.confirm.getString(context)),
                       ),
                     ],

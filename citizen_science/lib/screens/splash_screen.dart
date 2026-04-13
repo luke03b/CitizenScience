@@ -7,7 +7,7 @@ import 'login_screen.dart';
 import 'main_layout_screen.dart';
 
 /// Initial splash screen displayed when the app launches.
-/// 
+///
 /// Shows the app logo and a loading indicator while checking if the user
 /// can be automatically logged in via stored credentials.
 class SplashScreen extends StatefulWidget {
@@ -32,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     final appState = Provider.of<AppStateProvider>(context, listen: false);
-    
+
     // Check if user can auto-login
     final isAutoLoggedIn = await appState.checkAutoLogin();
 
@@ -40,9 +40,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => isAutoLoggedIn
-            ? const MainLayoutScreen() 
-            : const LoginScreen(),
+        builder: (context) =>
+            isAutoLoggedIn ? const MainLayoutScreen() : const LoginScreen(),
       ),
     );
   }

@@ -10,7 +10,7 @@ import 'registration_screen.dart';
 import 'main_layout_screen.dart';
 
 /// Login screen for user authentication.
-/// 
+///
 /// Provides email and password fields for users to sign in to their account.
 /// Includes validation and navigation to the registration screen for new users.
 class LoginScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   /// Validates form inputs and attempts to log in the user.
-  /// 
+  ///
   /// On success, navigates to [MainLayoutScreen].
   /// On failure, displays an error message via SnackBar.
   Future<void> _handleLogin() async {
@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ErrorHandler.getErrorMessage(context, e)),
@@ -97,16 +97,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       AppLocale.citizenScience.getString(context),
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocale.welcomeLogin.getString(context),
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -120,7 +121,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (value == null || value.isEmpty) {
                           return AppLocale.enterEmail.getString(context);
                         }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        if (!RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(value)) {
                           return AppLocale.enterValidEmail.getString(context);
                         }
                         return null;
@@ -162,7 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const RegistrationScreen(),
+                                builder: (context) =>
+                                    const RegistrationScreen(),
                               ),
                             );
                           },

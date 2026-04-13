@@ -13,7 +13,7 @@ import 'change_password_screen.dart';
 import 'ai_model_selection_screen.dart';
 
 /// Settings screen for user profile and app preferences management.
-/// 
+///
 /// Allows users to edit their profile information, toggle dark mode,
 /// change password, and log out. Researchers have an additional option
 /// to select AI models.
@@ -36,9 +36,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     final appState = Provider.of<AppStateProvider>(context, listen: false);
-    _firstNameController = TextEditingController(text: appState.currentUser?.firstName ?? '');
-    _lastNameController = TextEditingController(text: appState.currentUser?.lastName ?? '');
-    _emailController = TextEditingController(text: appState.currentUser?.email ?? '');
+    _firstNameController = TextEditingController(
+      text: appState.currentUser?.firstName ?? '',
+    );
+    _lastNameController = TextEditingController(
+      text: appState.currentUser?.lastName ?? '',
+    );
+    _emailController = TextEditingController(
+      text: appState.currentUser?.email ?? '',
+    );
   }
 
   @override
@@ -64,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// Validates and saves user profile changes to the backend.
-  /// 
+  ///
   /// On success, exits edit mode and shows a success message.
   /// On failure, displays an error message.
   Future<void> _saveChanges() async {
@@ -95,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ErrorHandler.getErrorMessage(context, e)),
@@ -110,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// Shows a confirmation dialog and logs out the user.
-  /// 
+  ///
   /// On confirmation, clears the navigation stack and returns to login screen.
   void _handleLogout() {
     showDialog(
@@ -125,11 +131,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           FilledButton(
             onPressed: () async {
-              Navigator.of(context).pop(); // Close dialog
-              final appState = Provider.of<AppStateProvider>(context, listen: false);
+              final dialogContext = context;
+              final rootNavigator = Navigator.of(this.context);
+              Navigator.of(dialogContext).pop(); // Close dialog
+              final appState = Provider.of<AppStateProvider>(
+                this.context,
+                listen: false,
+              );
               await appState.logout();
               if (!mounted) return;
-              Navigator.of(context).pushAndRemoveUntil(
+              rootNavigator.pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
                 (route) => false,
               );
@@ -171,9 +182,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           children: [
                             Text(
                               AppLocale.userInfo.getString(context),
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.titleLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             if (!_isEditing)
                               IconButton(
@@ -192,7 +202,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           isEnabled: _isEditing,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return AppLocale.enterFirstName.getString(context);
+                              return AppLocale.enterFirstName.getString(
+                                context,
+                              );
                             }
                             return null;
                           },
@@ -224,7 +236,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               return AppLocale.enterEmail.getString(context);
                             }
                             if (!value.contains('@')) {
-                              return AppLocale.enterValidEmail.getString(context);
+                              return AppLocale.enterValidEmail.getString(
+                                context,
+                              );
                             }
                             return null;
                           },
@@ -236,7 +250,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               TextButton(
                                 onPressed: _toggleEdit,
-                                child: Text(AppLocale.cancel.getString(context)),
+                                child: Text(
+                                  AppLocale.cancel.getString(context),
+                                ),
                               ),
                               const SizedBox(width: 8),
                               FilledButton.icon(
@@ -290,17 +306,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               style: Theme.of(context).textTheme.bodyLarge,
                             ),
                             subtitle: Text(
-                              AppLocale.toggleDarkMode.getString(context), 
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                              ),
+                              AppLocale.toggleDarkMode.getString(context),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
                             ),
                             value: themeProvider.isDarkMode,
                             onChanged: (value) {
                               themeProvider.toggleTheme();
                             },
                             secondary: Icon(
-                              themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                              themeProvider.isDarkMode
+                                  ? Icons.dark_mode
+                                  : Icons.light_mode,
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           );
@@ -310,7 +332,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Consumer<LocaleProvider>(
                         builder: (context, localeProvider, child) {
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             child: Row(
                               children: [
                                 Icon(
@@ -320,29 +345,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         AppLocale.language.getString(context),
-                                        style: Theme.of(context).textTheme.bodyLarge,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge,
                                       ),
                                       Text(
-                                        AppLocale.selectLanguage.getString(context),
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                                        AppLocale.selectLanguage.getString(
+                                          context,
                                         ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withValues(alpha: 0.6),
+                                            ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                        .withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outline
+                                          .withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: DropdownButton<String>(
@@ -355,24 +400,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         value: 'it',
                                         child: Text(
                                           AppLocale.italian.getString(context),
-                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                         ),
                                       ),
                                       DropdownMenuItem(
                                         value: 'en',
                                         child: Text(
                                           AppLocale.english.getString(context),
-                                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                         ),
                                       ),
                                     ],
                                     onChanged: (String? newValue) {
                                       if (newValue != null) {
-                                        localeProvider.setLocale(Locale(newValue));
+                                        localeProvider.setLocale(
+                                          Locale(newValue),
+                                        );
                                       }
                                     },
                                   ),
@@ -395,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if (appState.currentUser?.isResearcher != true) {
                     return const SizedBox.shrink();
                   }
-                  
+
                   return Column(
                     children: [
                       Card(
@@ -407,7 +460,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const AiModelSelectionScreen(),
+                                builder: (context) =>
+                                    const AiModelSelectionScreen(),
                               ),
                             );
                           },
@@ -424,18 +478,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        AppLocale.selectAiModel.getString(context),
-                                        style: Theme.of(context).textTheme.bodyLarge,
+                                        AppLocale.selectAiModel.getString(
+                                          context,
+                                        ),
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        AppLocale.configureAiModel.getString(context),
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w500,
+                                        AppLocale.configureAiModel.getString(
+                                          context,
                                         ),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -443,7 +507,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 Icon(
                                   Icons.arrow_forward_ios,
                                   size: 16,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.5),
                                 ),
                               ],
                             ),
@@ -480,7 +545,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => const ChangePasswordScreen(),
+                              builder: (context) =>
+                                  const ChangePasswordScreen(),
                             ),
                           );
                         },

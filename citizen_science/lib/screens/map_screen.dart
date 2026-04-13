@@ -19,7 +19,7 @@ import 'create_sighting_screen.dart';
 import 'sighting_detail_screen.dart';
 
 /// Screen displaying sightings on an interactive map.
-/// 
+///
 /// Shows clustered markers for sightings, supports location-based fetching,
 /// and provides map navigation with current location button.
 class MapScreen extends StatefulWidget {
@@ -40,7 +40,7 @@ class _MapScreenState extends State<MapScreen> {
   double? _lastFetchedZoom;
   Timer? _fetchDebounceTimer;
   SightingModel? _selectedSighting;
-  
+
   static const double _minZoomForSightings = 10.0;
   static const double _fetchThresholdKm = 2.0;
   static const Duration _debounceDelay = Duration(milliseconds: 500);
@@ -73,7 +73,8 @@ class _MapScreenState extends State<MapScreen> {
     const earthRadius = 6371.0; // km
     final dLat = _toRadians(point2.latitude - point1.latitude);
     final dLon = _toRadians(point2.longitude - point1.longitude);
-    final a = sin(dLat / 2) * sin(dLat / 2) +
+    final a =
+        sin(dLat / 2) * sin(dLat / 2) +
         cos(_toRadians(point1.latitude)) *
             cos(_toRadians(point2.latitude)) *
             sin(dLon / 2) *
@@ -107,7 +108,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   /// Fetches sightings for the current map view position and zoom.
-  /// 
+  ///
   /// If [forceFetch] is true, bypasses movement and zoom checks to force a refresh.
   Future<void> _fetchSightingsForCurrentView({bool forceFetch = false}) async {
     if (_mapController == null || !_isMapReady || _isLoadingSightings) return;
@@ -132,7 +133,7 @@ class _MapScreenState extends State<MapScreen> {
     try {
       final appState = Provider.of<AppStateProvider>(context, listen: false);
       final radius = _getRadiusFromZoom(zoom);
-      
+
       final sightings = await appState.fetchSightingsByLocation(
         lat: center.latitude,
         lng: center.longitude,
@@ -172,7 +173,7 @@ class _MapScreenState extends State<MapScreen> {
   /// Loads markers from sightings and updates map.
   void _loadMarkers([List<SightingModel>? sightings]) {
     final List<SightingModel> sightingsToShow;
-    
+
     if (sightings != null) {
       sightingsToShow = sightings;
     } else {
@@ -181,22 +182,24 @@ class _MapScreenState extends State<MapScreen> {
     }
 
     setState(() {
-      _markers = sightingsToShow.map((sighting) => 
-        Marker(
-          point: LatLng(sighting.latitude, sighting.longitude),
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          child: GestureDetector(
-            onTap: () => _showMarkerPreview(sighting.id, sightingsToShow),
-            child: Icon(
-              Icons.location_pin,
-              color: Theme.of(context).colorScheme.primary,
-              size: 40,
+      _markers = sightingsToShow
+          .map(
+            (sighting) => Marker(
+              point: LatLng(sighting.latitude, sighting.longitude),
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              child: GestureDetector(
+                onTap: () => _showMarkerPreview(sighting.id, sightingsToShow),
+                child: Icon(
+                  Icons.location_pin,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 40,
+                ),
+              ),
             ),
-          ),
-        ),
-      ).toList();
+          )
+          .toList();
     });
   }
 
@@ -221,22 +224,21 @@ class _MapScreenState extends State<MapScreen> {
         setState(() {
           _selectedSighting = null;
         });
-        
+
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             contentPadding: EdgeInsets.zero,
             content: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: 350,
-                maxHeight: 400,
-              ),
+              constraints: const BoxConstraints(maxWidth: 350, maxHeight: 400),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
                     child: SizedBox(
                       height: 200,
                       child: sighting.firstImage.isNotEmpty
@@ -257,9 +259,8 @@ class _MapScreenState extends State<MapScreen> {
                       children: [
                         Text(
                           sighting.flowerName,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -278,7 +279,8 @@ class _MapScreenState extends State<MapScreen> {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => SightingDetailScreen(sighting: sighting),
+                      builder: (context) =>
+                          SightingDetailScreen(sighting: sighting),
                     ),
                   );
                 },
@@ -314,7 +316,7 @@ class _MapScreenState extends State<MapScreen> {
 
     try {
       final result = await LocationUtils.getCurrentLocation();
-      
+
       if (result.success && result.position != null) {
         final currentLocation = LatLng(
           result.position!.latitude,
@@ -327,15 +329,21 @@ class _MapScreenState extends State<MapScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocale.centeredOnCurrentLocation.getString(context)),
+              content: Text(
+                AppLocale.centeredOnCurrentLocation.getString(context),
+              ),
               duration: const Duration(seconds: 2),
             ),
           );
         }
       } else {
-        _useFallbackLocation(result.errorMessage ?? AppLocale.unknownError.getString(context));
+        if (!mounted) return;
+        _useFallbackLocation(
+          result.errorMessage ?? AppLocale.unknownError.getString(context),
+        );
       }
     } catch (e) {
+      if (!mounted) return;
       _useFallbackLocation('${AppLocale.locationError.getString(context)}: $e');
     } finally {
       if (mounted) {
@@ -349,7 +357,7 @@ class _MapScreenState extends State<MapScreen> {
   /// Uses fallback location (Milano) when GPS fails.
   void _useFallbackLocation(String message) {
     _mapController?.move(_initialPosition, 14);
-    
+
     _fetchSightingsForCurrentView();
 
     if (mounted) {
@@ -382,9 +390,7 @@ class _MapScreenState extends State<MapScreen> {
     return Row(
       children: [
         // Map on the left
-        Expanded(
-          child: _buildMapView(),
-        ),
+        Expanded(child: _buildMapView()),
         // Details panel on the right
         SightingDetailSidePanel(
           sighting: _selectedSighting!,
@@ -516,11 +522,16 @@ class _MapScreenState extends State<MapScreen> {
                 // Force fetch to ensure new sighting appears on map immediately
                 _fetchSightingsForCurrentView(forceFetch: true);
                 try {
-                  final appState = Provider.of<AppStateProvider>(context, listen: false);
+                  final appState = Provider.of<AppStateProvider>(
+                    context,
+                    listen: false,
+                  );
                   await appState.fetchUserSightings();
                 } catch (e) {
                   // Silently fail if refresh fails, but log for debugging
-                  debugPrint('Failed to refresh user sightings after creation: $e');
+                  debugPrint(
+                    'Failed to refresh user sightings after creation: $e',
+                  );
                 }
               }
             },

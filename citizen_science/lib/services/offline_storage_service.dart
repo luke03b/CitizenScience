@@ -6,7 +6,7 @@ import '../models/user_model.dart';
 import 'offline_storage_service_web.dart';
 
 /// Service for managing offline data storage for web platform.
-/// 
+///
 /// This service is designed exclusively for web platforms and uses
 /// IndexedDB for photo storage. It handles caching of user data and
 /// pending sightings that need to be synced when network connection
@@ -14,8 +14,9 @@ import 'offline_storage_service_web.dart';
 class OfflineStorageService {
   static const String _userCacheKey = 'cached_user_data';
   static const String _pendingSightingsKey = 'pending_sightings';
-  
-  final OfflineStorageServicePlatform _platform = OfflineStorageServicePlatform();
+
+  final OfflineStorageServicePlatform _platform =
+      OfflineStorageServicePlatform();
 
   /// Saves user data to local cache for offline access.
   Future<void> cacheUserData(UserModel user) async {
@@ -35,15 +36,15 @@ class OfflineStorageService {
   }
 
   /// Retrieves cached user data from local storage.
-  /// 
+  ///
   /// Returns null if no cached data exists or if deserialization fails.
   Future<UserModel?> getCachedUserData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userDataStr = prefs.getString(_userCacheKey);
-      
+
       if (userDataStr == null) return null;
-      
+
       final userData = jsonDecode(userDataStr);
       return UserModel(
         id: userData['id'],
@@ -68,19 +69,19 @@ class OfflineStorageService {
   }
 
   /// Saves a pending sighting to local storage.
-  /// 
+  ///
   /// Copies photo files to a persistent location and stores
   /// the sighting data for later upload.
   Future<void> savePendingSighting(PendingSightingModel sighting) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       // Get existing pending sightings
       final existingSightings = await getPendingSightings();
-      
+
       // Add new sighting
       existingSightings.add(sighting);
-      
+
       // Save to SharedPreferences
       final sightingsJson = existingSightings.map((s) => s.toJson()).toList();
       await prefs.setString(_pendingSightingsKey, jsonEncode(sightingsJson));
@@ -94,9 +95,9 @@ class OfflineStorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final sightingsStr = prefs.getString(_pendingSightingsKey);
-      
+
       if (sightingsStr == null) return [];
-      
+
       final List<dynamic> sightingsJson = jsonDecode(sightingsStr);
       return sightingsJson
           .map((json) => PendingSightingModel.fromJson(json))
@@ -111,9 +112,9 @@ class OfflineStorageService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final existingSightings = await getPendingSightings();
-      
+
       existingSightings.removeWhere((s) => s.id == sightingId);
-      
+
       final sightingsJson = existingSightings.map((s) => s.toJson()).toList();
       await prefs.setString(_pendingSightingsKey, jsonEncode(sightingsJson));
     } catch (e) {
@@ -132,23 +133,26 @@ class OfflineStorageService {
   }
 
   /// Copies a file to persistent storage and returns the new path.
-  /// 
+  ///
   /// On web platforms, stores the file in IndexedDB and returns a unique ID.
   /// On native platforms, copies to the application documents directory.
   Future<String> copyFileToPersistentStorage(String originalPath) async {
     return _platform.copyFileToPersistentStorage(originalPath);
   }
-  
+
   /// Stores photo bytes in persistent storage (web-specific).
-  /// 
+  ///
   /// This method is primarily for web platforms where we need to store
   /// the actual bytes of the photo in IndexedDB alongside the metadata.
   Future<void> storePhotoBytes(String photoId, List<int> bytes) async {
-    await _platform.storePhotoBytes(photoId, bytes is Uint8List ? bytes : Uint8List.fromList(bytes));
+    await _platform.storePhotoBytes(
+      photoId,
+      bytes is Uint8List ? bytes : Uint8List.fromList(bytes),
+    );
   }
-  
+
   /// Retrieves photo bytes from persistent storage.
-  /// 
+  ///
   /// Returns the bytes of the photo if found, null otherwise.
   Future<Uint8List?> getPhotoBytes(String photoId) async {
     return _platform.getPhotoBytes(photoId);

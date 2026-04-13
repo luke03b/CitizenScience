@@ -9,7 +9,7 @@ import '../l10n/app_locale.dart';
 import '../utils/error_handler.dart';
 
 /// Screen for changing the user's password.
-/// 
+///
 /// Requires the user to enter their old password, a new password,
 /// and confirm the new password. Validates that the new password
 /// is different from the old one and that both new password fields match.
@@ -36,7 +36,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   }
 
   /// Validates form inputs and submits the password change request.
-  /// 
+  ///
   /// On success, navigates back to the settings screen with a success message.
   /// On failure, displays an error message.
   Future<void> _handleChangePassword() async {
@@ -50,7 +50,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         oldPassword: _oldPasswordController.text,
         newPassword: _newPasswordController.text,
       );
-      
+
       await appState.apiService.changePassword(request);
 
       if (!mounted) return;
@@ -68,7 +68,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(ErrorHandler.getErrorMessage(context, e)),
@@ -110,16 +110,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       children: [
                         Text(
                           AppLocale.changePasswordTitle.getString(context),
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           AppLocale.enterOldAndNew.getString(context),
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
                         ),
                         const SizedBox(height: 24),
                         CustomTextField(
@@ -130,7 +132,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           prefixIcon: Icons.lock_outline,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return AppLocale.enterOldPassword.getString(context);
+                              return AppLocale.enterOldPassword.getString(
+                                context,
+                              );
                             }
                             return null;
                           },
@@ -144,13 +148,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           prefixIcon: Icons.lock,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return AppLocale.enterNewPassword.getString(context);
+                              return AppLocale.enterNewPassword.getString(
+                                context,
+                              );
                             }
                             if (value.length < 6) {
-                              return AppLocale.passwordMinLength.getString(context);
+                              return AppLocale.passwordMinLength.getString(
+                                context,
+                              );
                             }
                             if (value == _oldPasswordController.text) {
-                              return AppLocale.newPasswordMustBeDifferent.getString(context);
+                              return AppLocale.newPasswordMustBeDifferent
+                                  .getString(context);
                             }
                             return null;
                           },
@@ -158,23 +167,31 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                         const SizedBox(height: 16),
                         CustomTextField(
                           controller: _confirmPasswordController,
-                          label: AppLocale.passwordConfirmation.getString(context),
+                          label: AppLocale.passwordConfirmation.getString(
+                            context,
+                          ),
                           hint: AppLocale.confirmPassword.getString(context),
                           isObscured: true,
                           prefixIcon: Icons.lock_clock,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return AppLocale.confirmPassword.getString(context);
+                              return AppLocale.confirmPassword.getString(
+                                context,
+                              );
                             }
                             if (value != _newPasswordController.text) {
-                              return AppLocale.passwordsDontMatch.getString(context);
+                              return AppLocale.passwordsDontMatch.getString(
+                                context,
+                              );
                             }
                             return null;
                           },
                         ),
                         const SizedBox(height: 32),
                         CustomButton(
-                          text: AppLocale.changePasswordTitle.getString(context),
+                          text: AppLocale.changePasswordTitle.getString(
+                            context,
+                          ),
                           onPressed: _handleChangePassword,
                           isLoading: _isLoading,
                           icon: Icons.check,

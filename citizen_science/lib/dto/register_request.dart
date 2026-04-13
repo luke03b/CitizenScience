@@ -1,5 +1,5 @@
 /// Data transfer object for user registration requests.
-/// 
+///
 /// Contains all required information for creating a new user account.
 class RegisterRequest {
   final String nome;
