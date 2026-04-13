@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -137,6 +138,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/scan")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.scannedContainers.ai_service[0]").value("model_v1.pt"));
@@ -146,6 +148,7 @@ class AiModelControllerTest {
     void givenRegularUser_whenForceScan_thenReturns403() throws Exception {
         // Act & Assert
         mockMvc.perform(post("/api/ai/scan")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + USER_TOKEN))
                 .andExpect(status().isForbidden());
     }
@@ -162,6 +165,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/select")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -186,6 +190,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/select")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -200,6 +205,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/select")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -213,6 +219,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/select")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + USER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -267,6 +274,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/set-default")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -282,6 +290,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/set-default")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -299,6 +308,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/set-default")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + RESEARCHER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -313,6 +323,7 @@ class AiModelControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/ai/models/set-default")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + USER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -117,6 +118,7 @@ class UserControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/users/me")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -133,6 +135,7 @@ class UserControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/users/me")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -145,6 +148,7 @@ class UserControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/users/me")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -167,6 +171,7 @@ class UserControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/users/me")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

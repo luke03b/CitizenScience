@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -166,6 +167,7 @@ class SightingControllerTest {
         // Act & Assert
         mockMvc.perform(multipart("/api/sightings")
                         .file(photo)
+                        .with(csrf())
                         .param("data", "2024-06-01T10:00:00")
                         .param("latitudine", "45.0")
                         .param("longitudine", "9.0")
@@ -185,6 +187,7 @@ class SightingControllerTest {
         // so the controller returns 201 with null body.
         mockMvc.perform(multipart("/api/sightings")
                         .file(photo)
+                        .with(csrf())
                         .param("data", "2024-06-01T10:00:00")
                         .param("latitudine", "45.0")
                         .param("longitudine", "9.0"))
@@ -202,6 +205,7 @@ class SightingControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/sightings/{id}/notes", sightingId)
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -216,6 +220,7 @@ class SightingControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/sightings/{id}/notes", sightingId)
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
@@ -227,6 +232,7 @@ class SightingControllerTest {
     void givenAuthenticatedOwner_whenDeleteSighting_thenReturns204() throws Exception {
         // Act & Assert
         mockMvc.perform(delete("/api/sightings/{id}", sightingId)
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN))
                 .andExpect(status().isNoContent());
     }
@@ -234,7 +240,8 @@ class SightingControllerTest {
     @Test
     void givenUnauthenticatedRequest_whenDeleteSighting_thenReturns401() throws Exception {
         // Act & Assert
-        mockMvc.perform(delete("/api/sightings/{id}", sightingId))
+        mockMvc.perform(delete("/api/sightings/{id}", sightingId)
+                        .with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 }

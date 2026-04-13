@@ -7,13 +7,17 @@ and managing AI models. It serves as the AI microservice for the Citizen Science
 
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
+import logging
 import os
+import re
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import io
 import json
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="AI Flower Identification Service")
 
@@ -48,6 +52,25 @@ def get_available_models():
     return [f for f in os.listdir(MODELS_DIR) if f.endswith(".pt")]
 
 
+def _validate_model_name(model_name: str) -> None:
+    """
+    Validate a model name to prevent path traversal attacks.
+
+    Only filenames matching the pattern '<name>.pt' with alphanumeric,
+    underscore, or hyphen characters are accepted. The resolved path is
+    also checked to ensure it stays within MODELS_DIR.
+
+    Raises:
+        ValueError: If the model name is invalid or resolves outside MODELS_DIR.
+    """
+    if not re.match(r'^[a-zA-Z0-9_\-]+\.pt$', model_name):
+        raise ValueError("Invalid model name")
+    models_dir_real = os.path.realpath(os.path.abspath(MODELS_DIR))
+    model_path_real = os.path.realpath(os.path.abspath(os.path.join(MODELS_DIR, model_name)))
+    if os.path.commonpath([models_dir_real, model_path_real]) != models_dir_real:
+        raise ValueError("Invalid model path")
+
+
 def load_class_mapping(model_name):
     """
     Load class index to name mapping from JSON file.
@@ -56,10 +79,11 @@ def load_class_mapping(model_name):
     Uses 0-based indexing to match PyTorch output.
     Non-integer keys (e.g. "description") are silently ignored.
     """
-    json_path = os.path.join(MODELS_DIR, model_name.replace('.pt', '.json'))
+    _validate_model_name(model_name)
+    json_path = os.path.join(MODELS_DIR, os.path.splitext(model_name)[0] + '.json')
     if not os.path.exists(json_path):
         return None
-    
+
     with open(json_path, 'r', encoding='utf-8') as f:
         mapping = json.load(f)
     
@@ -82,29 +106,32 @@ def load_model(model_name):
     # Check cache first
     if model_name in model_cache:
         return model_cache[model_name]
-    
+
+    # Validate model name to prevent path traversal
+    _validate_model_name(model_name)
+
     # Load device (automatic selection)
     device = load_device()
-    
+
     # Construct full path to model file
     model_path = os.path.join(MODELS_DIR, model_name)
-    
+
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"Model file not found: {model_path}")
-    
+
     # Load class mapping
     class_mapping = load_class_mapping(model_name)
     if class_mapping is None:
         raise FileNotFoundError(f"Class mapping JSON not found for model: {model_name}")
-    
+
     num_classes = len(class_mapping)
-    
+
     # Initialize ResNet18 model
     model = models.resnet18()
     model.fc = nn.Linear(model.fc.in_features, num_classes)
-    
+
     # Load weights - handle both direct state_dict and checkpoint dict formats
-    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=True)
     if isinstance(checkpoint, dict) and 'model' in checkpoint:
         model.load_state_dict(checkpoint['model'])
     else:
@@ -250,10 +277,11 @@ async def identify_flower(photo: UploadFile = File(...), model_name: str = Form(
             "device_used": str(device)
         }
         
-    except Exception as e:
+    except Exception:
+        logger.exception("Error during inference")
         return JSONResponse(
             status_code=500,
-            content={"error": f"Error during inference: {str(e)}"}
+            content={"error": "An internal error occurred during inference"}
         )
 
 
@@ -287,17 +315,18 @@ def list_models():
         result = []
         for model_file in model_files:
             description = None
-            json_path = os.path.join(models_dir, model_file.replace('.pt', '.json'))
+            json_path = os.path.join(models_dir, os.path.splitext(model_file)[0] + '.json')
             if os.path.exists(json_path):
                 with open(json_path, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     description = data.get('description')
             result.append({"name": model_file, "description": description})
         return {"models": result}
-    except Exception as e:
+    except Exception:
+        logger.exception("Error reading models directory")
         return JSONResponse(
             status_code=500,
-            content={"error": f"Error reading models directory: {str(e)}"}
+            content={"error": "An internal error occurred while reading the models directory"}
         )
 
 

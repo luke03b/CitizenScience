@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -92,6 +93,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -106,6 +108,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -118,6 +121,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -130,6 +134,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/register")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -146,6 +151,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -160,6 +166,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -172,6 +179,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(post("/api/auth/login")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -188,6 +196,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/auth/change-password")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -206,6 +215,7 @@ class AuthControllerTest {
         // NullPointerException when building Map.of("message", null) → 500.
         // We verify that no 2xx success is returned for an unauthenticated change-password call.
         mockMvc.perform(put("/api/auth/change-password")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().is5xxServerError());
@@ -218,6 +228,7 @@ class AuthControllerTest {
 
         // Act & Assert
         mockMvc.perform(put("/api/auth/change-password")
+                        .with(csrf())
                         .header("Authorization", "Bearer " + BEARER_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
