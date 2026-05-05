@@ -117,14 +117,11 @@ void main() {
         );
 
         final lightLogo = tester.widget<SvgPicture>(find.byType(SvgPicture));
-        expect(
-          lightLogo.key,
-          const ValueKey<String>('assets/images/Logo.svg'),
-        );
+        expect(lightLogo.key, const ValueKey<String>('assets/images/Logo.svg'));
 
         // Act
         themeProvider.toggleTheme();
-        await tester.pump();
+        await tester.pumpAndSettle();
 
         final darkLogo = tester.widget<SvgPicture>(find.byType(SvgPicture));
         expect(

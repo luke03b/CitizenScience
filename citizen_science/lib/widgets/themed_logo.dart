@@ -22,14 +22,12 @@ class ThemedLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final asset =
-      useThemeAsset && isDark
+    final asset = useThemeAsset && isDark
         ? 'assets/images/LogoBianco.svg'
         : 'assets/images/Logo.svg';
-    final colorFilter =
-        useThemeAsset && isDark
-            ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
-            : null;
+    final colorFilter = useThemeAsset && isDark
+        ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+        : null;
 
     return SvgPicture.asset(
       key: ValueKey(asset),

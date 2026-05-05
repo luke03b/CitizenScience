@@ -13,9 +13,7 @@ void main() {
         WidgetTester tester,
       ) async {
         // Arrange & Act
-        await tester.pumpWidget(
-          _wrap(const CustomAppBar(title: 'EcoFlora')),
-        );
+        await tester.pumpWidget(_wrap(const CustomAppBar(title: 'EcoFlora')));
 
         // Assert
         expect(find.text('EcoFlora'), findsOneWidget);
