@@ -1,12 +1,12 @@
-package com.citizenScience.services;
+package com.citizenscience.services;
 
-import com.citizenScience.dto.AiIdentificationResult;
-import com.citizenScience.dto.AiModelInfo;
-import com.citizenScience.entities.AiContainerModel;
-import com.citizenScience.entities.AiModelSelection;
-import com.citizenScience.entities.User;
-import com.citizenScience.repositories.AiContainerModelRepository;
-import com.citizenScience.repositories.AiModelSelectionRepository;
+import com.citizenscience.dto.AiIdentificationResult;
+import com.citizenscience.dto.AiModelInfo;
+import com.citizenscience.entities.AiContainerModel;
+import com.citizenscience.entities.AiModelSelection;
+import com.citizenscience.entities.User;
+import com.citizenscience.repositories.AiContainerModelRepository;
+import com.citizenscience.repositories.AiModelSelectionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,4 +1,4 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

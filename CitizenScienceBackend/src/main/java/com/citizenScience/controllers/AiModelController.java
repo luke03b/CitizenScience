@@ -1,10 +1,10 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.entities.AiModelSelection;
-import com.citizenScience.entities.User;
-import com.citizenScience.dto.AiModelInfo;
-import com.citizenScience.repositories.AiModelSelectionRepository;
-import com.citizenScience.services.AiService;
+import com.citizenscience.entities.AiModelSelection;
+import com.citizenscience.entities.User;
+import com.citizenscience.dto.AiModelInfo;
+import com.citizenscience.repositories.AiModelSelectionRepository;
+import com.citizenscience.services.AiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,6 +30,9 @@ import java.util.Map;
 public class AiModelController {
 
     private static final String ROLE_RESEARCHER = "ricercatore";
+    private static final String KEY_ERROR = "error";
+    private static final String KEY_MODEL_NAME = "modelName";
+    private static final String KEY_MESSAGE = "message";
     
     private final AiService aiService;
     private final AiModelSelectionRepository aiModelSelectionRepository;
@@ -64,10 +67,10 @@ public class AiModelController {
         @ApiResponse(responseCode = "401", description = "User not authenticated"),
         @ApiResponse(responseCode = "403", description = "User is not a researcher")
     })
-    public ResponseEntity<?> getAvailableModels(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Map<String, Object>> getAvailableModels(@AuthenticationPrincipal User user) {
         if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only researchers can access AI models"));
+                    .body(Map.of(KEY_ERROR, "Only researchers can access AI models"));
         }
 
         List<AiModelInfo> models = aiService.getAvailableModels();
@@ -93,10 +96,10 @@ public class AiModelController {
         @ApiResponse(responseCode = "401", description = "User not authenticated"),
         @ApiResponse(responseCode = "403", description = "User is not a researcher")
     })
-    public ResponseEntity<?> forceScanModels(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Map<String, Object>> forceScanModels(@AuthenticationPrincipal User user) {
         if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only researchers can trigger a model scan"));
+                    .body(Map.of(KEY_ERROR, "Only researchers can trigger a model scan"));
         }
 
         Map<String, List<String>> scanResult = aiService.forceScanModels();
@@ -119,19 +122,19 @@ public class AiModelController {
         @ApiResponse(responseCode = "401", description = "User not authenticated"),
         @ApiResponse(responseCode = "403", description = "User is not a researcher")
     })
-    public ResponseEntity<?> selectModel(
+    public ResponseEntity<Map<String, Object>> selectModel(
             @AuthenticationPrincipal User user,
             @RequestBody Map<String, String> request) {
         
         if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only researchers can select AI models"));
+                    .body(Map.of(KEY_ERROR, "Only researchers can select AI models"));
         }
 
-        String modelName = request.get("modelName");
+        String modelName = request.get(KEY_MODEL_NAME);
         if (modelName == null || modelName.isEmpty()) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Model name is required"));
+                    .body(Map.of(KEY_ERROR, "Model name is required"));
         }
 
         var existingSelection = aiModelSelectionRepository.findByUser(user);
@@ -152,8 +155,8 @@ public class AiModelController {
         aiModelSelectionRepository.save(selection);
 
         return ResponseEntity.ok(Map.of(
-                "message", "Model selected successfully",
-                "modelName", modelName
+            KEY_MESSAGE, "Model selected successfully",
+            KEY_MODEL_NAME, modelName
         ));
     }
 
@@ -171,21 +174,21 @@ public class AiModelController {
         @ApiResponse(responseCode = "403", description = "User is not a researcher"),
         @ApiResponse(responseCode = "404", description = "No model selected")
     })
-    public ResponseEntity<?> getSelectedModel(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Map<String, Object>> getSelectedModel(@AuthenticationPrincipal User user) {
         if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only researchers can access AI models"));
+                    .body(Map.of(KEY_ERROR, "Only researchers can access AI models"));
         }
 
         var selection = aiModelSelectionRepository.findByUser(user);
         
         if (selection.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "No model selected"));
+                .body(Map.of(KEY_ERROR, "No model selected"));
         }
 
         return ResponseEntity.ok(Map.of(
-                "modelName", selection.get().getModelName(),
+            KEY_MODEL_NAME, selection.get().getModelName(),
                 "selectedAt", selection.get().getSelectedAt()
         ));
     }
@@ -214,29 +217,29 @@ public class AiModelController {
         @ApiResponse(responseCode = "401", description = "User not authenticated"),
         @ApiResponse(responseCode = "403", description = "User is not a researcher")
     })
-    public ResponseEntity<?> setDefaultModel(
+    public ResponseEntity<Map<String, Object>> setDefaultModel(
             @AuthenticationPrincipal User user,
             @RequestBody Map<String, String> request) {
 
         if (!ROLE_RESEARCHER.equalsIgnoreCase(user.getRuolo())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Only researchers can set the default AI model"));
+                    .body(Map.of(KEY_ERROR, "Only researchers can set the default AI model"));
         }
 
-        String modelName = request.get("modelName");
+        String modelName = request.get(KEY_MODEL_NAME);
 
         try {
             aiService.setDefaultModel(modelName);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of(KEY_ERROR, e.getMessage()));
         }
 
         if (modelName == null || modelName.isBlank()) {
-            return ResponseEntity.ok(Map.of("message", "Default model cleared"));
+            return ResponseEntity.ok(Map.of(KEY_MESSAGE, "Default model cleared"));
         }
         return ResponseEntity.ok(Map.of(
-                "message", "Default model set successfully",
-                "modelName", modelName
+                KEY_MESSAGE, "Default model set successfully",
+                KEY_MODEL_NAME, modelName
         ));
     }
 }

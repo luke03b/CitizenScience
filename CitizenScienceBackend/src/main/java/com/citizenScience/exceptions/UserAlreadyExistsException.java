@@ -1,4 +1,4 @@
-package com.citizenScience.exceptions;
+package com.citizenscience.exceptions;
 
 /**
  * Exception thrown when attempting to register a user with an email that already exists.

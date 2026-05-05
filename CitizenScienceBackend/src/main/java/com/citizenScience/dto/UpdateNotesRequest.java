@@ -1,4 +1,4 @@
-package com.citizenScience.dto;
+package com.citizenscience.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

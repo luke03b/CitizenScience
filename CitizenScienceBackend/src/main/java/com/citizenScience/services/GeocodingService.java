@@ -1,4 +1,4 @@
-package com.citizenScience.services;
+package com.citizenscience.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,8 @@ public class GeocodingService {
     private static final Logger logger = LoggerFactory.getLogger(GeocodingService.class);
     private static final String NOMINATIM_API_URL = "https://nominatim.openstreetmap.org";
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(5);
+    private static final String KEY_DISPLAY_NAME = "display_name";
+    private static final String UNKNOWN_ADDRESS = "Unknown";
     
     private final WebClient webClient;
     
@@ -85,46 +87,63 @@ public class GeocodingService {
             Map<String, Object> address = (Map<String, Object>) response.get("address");
             
             if (address == null) {
-                return (String) response.getOrDefault("display_name", "Unknown");
+                return fallbackDisplayName(response);
             }
             
             StringBuilder addressBuilder = new StringBuilder();
             
             String road = (String) address.get("road");
-            if (road != null && !road.isEmpty()) {
-                addressBuilder.append(road);
-            }
-            
-            String city = (String) address.get("city");
-            if (city == null) city = (String) address.get("town");
-            if (city == null) city = (String) address.get("village");
-            if (city == null) city = (String) address.get("municipality");
+            appendAddressPart(addressBuilder, road);
+
+            String city = firstNonEmpty(
+                    (String) address.get("city"),
+                    (String) address.get("town"),
+                    (String) address.get("village"),
+                    (String) address.get("municipality")
+            );
+            appendAddressPart(addressBuilder, city);
             
             if (city != null && !city.isEmpty()) {
-                if (addressBuilder.length() > 0) {
-                    addressBuilder.append(", ");
+                String state = (String) address.get("state");
+                if (state != null && !state.isEmpty() && !state.equals(city)) {
+                    appendAddressPart(addressBuilder, state);
                 }
-                addressBuilder.append(city);
+            } else {
+                appendAddressPart(addressBuilder, (String) address.get("state"));
             }
             
-            String state = (String) address.get("state");
-            if (state != null && !state.isEmpty() && 
-                (city == null || !state.equals(city))) {
-                if (addressBuilder.length() > 0) {
-                    addressBuilder.append(", ");
-                }
-                addressBuilder.append(state);
-            }
-            
-            if (addressBuilder.length() > 0) {
+            if (!addressBuilder.isEmpty()) {
                 return addressBuilder.toString();
             }
             
-            return (String) response.getOrDefault("display_name", "Unknown");
+            return fallbackDisplayName(response);
             
         } catch (Exception e) {
             logger.warn("Error building address string: {}", e.getMessage());
-            return (String) response.getOrDefault("display_name", "Unknown");
+            return fallbackDisplayName(response);
         }
+    }
+
+    private void appendAddressPart(StringBuilder addressBuilder, String part) {
+        if (part == null || part.isEmpty()) {
+            return;
+        }
+        if (!addressBuilder.isEmpty()) {
+            addressBuilder.append(", ");
+        }
+        addressBuilder.append(part);
+    }
+
+    private String firstNonEmpty(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private String fallbackDisplayName(Map<String, Object> response) {
+        return (String) response.getOrDefault(KEY_DISPLAY_NAME, UNKNOWN_ADDRESS);
     }
 }

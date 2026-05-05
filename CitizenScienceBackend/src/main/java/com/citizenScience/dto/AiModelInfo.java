@@ -1,4 +1,4 @@
-package com.citizenScience.dto;
+package com.citizenscience.dto;
 
 /**
  * Data transfer object representing an AI model with its optional description.

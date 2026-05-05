@@ -1,6 +1,6 @@
-# Citizen Science Platform
+# EcoFlora Platform
 
-A multi-container application for recording and identifying wild flower sightings. Researchers and citizen scientists use the mobile-friendly web interface to photograph flowers in the field. Uploaded images are automatically classified by a machine learning service, and all observations are stored with geospatial metadata for later analysis.
+EcoFlora is a multi-container application built for citizen science, focused on recording and identifying wild flower sightings. Researchers and citizen scientists use the mobile-friendly web interface to photograph flowers in the field. Uploaded images are automatically classified by a machine learning service, and all observations are stored with geospatial metadata for later analysis.
 
 ## Architecture
 
@@ -177,7 +177,7 @@ On Windows PowerShell:
 
 ```powershell
 cd CitizenScienceBackend
-.\mvnw.cmd -B clean verify sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=<YOUR_TOKEN> -Dsonar.projectKey=CitizenScienceBackend
+.\mvnw.cmd -B clean verify "org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar" "-Dsonar.host.url=http://localhost:9000" "-Dsonar.token=<YOUR_TOKEN>" "-Dsonar.projectKey=CitizenScienceBackend"
 ```
 
 This local SonarQube flow is intentionally separate from GitHub-hosted workflows, so CI quality checks do not depend on a machine running SonarQube.

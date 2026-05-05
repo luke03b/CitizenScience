@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:citizen_science/providers/theme_provider.dart';
 import 'package:citizen_science/providers/locale_provider.dart';
+import 'package:citizen_science/widgets/themed_logo.dart';
 
 /// Smoke test verifying that core providers can be instantiated and
 /// wired up into a widget tree without crashing.
@@ -91,6 +93,41 @@ void main() {
         // Assert
         final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
         expect(app.theme?.brightness, Brightness.dark);
+      },
+    );
+
+    testWidgets(
+      'given ThemeProvider when toggled then ThemedLogo switches asset',
+      (WidgetTester tester) async {
+        // Arrange
+        final themeProvider = ThemeProvider();
+
+        await tester.pumpWidget(
+          ChangeNotifierProvider<ThemeProvider>.value(
+            value: themeProvider,
+            child: Consumer<ThemeProvider>(
+              builder: (context, theme, _) => MaterialApp(
+                theme: theme.currentTheme,
+                home: const Scaffold(
+                  body: Center(child: ThemedLogo(width: 24, height: 24)),
+                ),
+              ),
+            ),
+          ),
+        );
+
+        final lightLogo = tester.widget<SvgPicture>(find.byType(SvgPicture));
+        expect(lightLogo.key, const ValueKey<String>('assets/images/Logo.svg'));
+
+        // Act
+        themeProvider.toggleTheme();
+        await tester.pumpAndSettle();
+
+        final darkLogo = tester.widget<SvgPicture>(find.byType(SvgPicture));
+        expect(
+          darkLogo.key,
+          const ValueKey<String>('assets/images/LogoBianco.svg'),
+        );
       },
     );
   });

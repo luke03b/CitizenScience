@@ -1,12 +1,12 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.config.SecurityConfig;
-import com.citizenScience.dto.UpdateUserRequest;
-import com.citizenScience.dto.UserResponse;
-import com.citizenScience.entities.User;
-import com.citizenScience.repositories.UserRepository;
-import com.citizenScience.security.JwtUtil;
-import com.citizenScience.services.UserService;
+import com.citizenscience.config.SecurityConfig;
+import com.citizenscience.dto.UpdateUserRequest;
+import com.citizenscience.dto.UserResponse;
+import com.citizenscience.entities.User;
+import com.citizenscience.repositories.UserRepository;
+import com.citizenscience.security.JwtUtil;
+import com.citizenscience.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

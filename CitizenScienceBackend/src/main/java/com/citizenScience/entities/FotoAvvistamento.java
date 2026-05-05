@@ -1,4 +1,4 @@
-package com.citizenScience.entities;
+package com.citizenscience.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

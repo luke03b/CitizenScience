@@ -1,6 +1,6 @@
 # CitizenScienceBackend
 
-The backend service for the Citizen Science platform. Built with Spring Boot 4, it exposes a REST API for user authentication, sighting management, and AI model orchestration.
+The backend service for EcoFlora, an application built for citizen science. Built with Spring Boot 4, it exposes a REST API for user authentication, sighting management, and AI model orchestration.
 
 ## Role in Architecture
 

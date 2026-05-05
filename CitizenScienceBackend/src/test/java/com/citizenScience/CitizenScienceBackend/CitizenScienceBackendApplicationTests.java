@@ -1,10 +1,10 @@
-package com.citizenScience.CitizenScienceBackend;
+package com.citizenscience.CitizenScienceBackend;
 
-import com.citizenScience.repositories.AiContainerModelRepository;
-import com.citizenScience.repositories.AiModelSelectionRepository;
-import com.citizenScience.repositories.AvvistamentoRepository;
-import com.citizenScience.repositories.FotoAvvistamentoRepository;
-import com.citizenScience.repositories.UserRepository;
+import com.citizenscience.repositories.AiContainerModelRepository;
+import com.citizenscience.repositories.AiModelSelectionRepository;
+import com.citizenscience.repositories.AvvistamentoRepository;
+import com.citizenscience.repositories.FotoAvvistamentoRepository;
+import com.citizenscience.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;

@@ -1,6 +1,6 @@
-# citizen_science
+# EcoFlora
 
-A Flutter web application for citizen scientists and researchers to record, view, and manage flower sightings. The app is designed as a Progressive Web App with offline caching support, enabling field work without a reliable internet connection.
+EcoFlora is the Flutter web frontend for the citizen science platform. It lets citizen scientists and researchers record, view, and manage flower sightings. The app is designed as a Progressive Web App with offline caching support, enabling field work without a reliable internet connection.
 
 ## Role in Architecture
 

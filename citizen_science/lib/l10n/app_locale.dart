@@ -1,6 +1,6 @@
 import 'package:flutter_localization/flutter_localization.dart';
 
-/// Localized strings for the Citizen Science application.
+/// Localized strings for the EcoFlora application.
 ///
 /// Contains all user-facing text in multiple languages (Italian and English).
 class AppLocale {
@@ -207,6 +207,8 @@ class AppLocale {
   static const removeDefault = 'removeDefault';
   static const setDefaultSuccess = 'setDefaultSuccess';
   static const clearDefaultSuccess = 'clearDefaultSuccess';
+  static const yourModel = 'yourModel';
+  static const globalModel = 'globalModel';
 
   // Error Messages
   static const errorNetworkConnection = 'errorNetworkConnection';
@@ -265,7 +267,7 @@ class LocaleData {
     AppLocale.updateError: 'Errore nell\'aggiornamento',
 
     // Login Screen
-    AppLocale.citizenScience: 'Citizen Science',
+    AppLocale.citizenScience: 'EcoFlora',
     AppLocale.welcomeLogin: 'Benvenuto! Accedi per continuare',
     AppLocale.password: 'Password',
     AppLocale.enterPassword: 'Inserisci la tua password',
@@ -445,6 +447,8 @@ class LocaleData {
     AppLocale.removeDefault: 'Rimuovi predefinito',
     AppLocale.setDefaultSuccess: 'Modello predefinito impostato con successo',
     AppLocale.clearDefaultSuccess: 'Modello predefinito rimosso',
+    AppLocale.yourModel: 'Il tuo modello',
+    AppLocale.globalModel: 'Modello Globale',
 
     // Error Messages
     AppLocale.errorNetworkConnection:
@@ -504,7 +508,7 @@ class LocaleData {
     AppLocale.updateError: 'Update error',
 
     // Login Screen
-    AppLocale.citizenScience: 'Citizen Science',
+    AppLocale.citizenScience: 'EcoFlora',
     AppLocale.welcomeLogin: 'Welcome! Log in to continue',
     AppLocale.password: 'Password',
     AppLocale.enterPassword: 'Enter your password',
@@ -678,6 +682,8 @@ class LocaleData {
     AppLocale.removeDefault: 'Remove default',
     AppLocale.setDefaultSuccess: 'Default model set successfully',
     AppLocale.clearDefaultSuccess: 'Default model cleared',
+    AppLocale.yourModel: 'Your Model',
+    AppLocale.globalModel: 'Global Model',
 
     // Error Messages
     AppLocale.errorNetworkConnection:

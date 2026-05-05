@@ -1,6 +1,6 @@
-package com.citizenScience.repositories;
+package com.citizenscience.repositories;
 
-import com.citizenScience.entities.Avvistamento;
+import com.citizenscience.entities.Avvistamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

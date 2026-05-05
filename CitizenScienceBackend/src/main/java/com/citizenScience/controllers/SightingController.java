@@ -1,9 +1,9 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.dto.AvvistamentoResponse;
-import com.citizenScience.dto.UpdateNotesRequest;
-import com.citizenScience.entities.User;
-import com.citizenScience.services.AvvistamentoService;
+import com.citizenscience.dto.AvvistamentoResponse;
+import com.citizenscience.dto.UpdateNotesRequest;
+import com.citizenscience.entities.User;
+import com.citizenscience.services.AvvistamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,7 +29,7 @@ import java.util.UUID;
  * geospatial queries, and user-specific filtering. Supports multipart/form-data
  * for photo uploads and various retrieval methods.
  * 
- * @author Citizen Science Team
+ * @author EcoFlora Team
  * @version 1.0
  */
 @RestController

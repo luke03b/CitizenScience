@@ -1,4 +1,4 @@
-package com.citizenScience.security;
+package com.citizenscience.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

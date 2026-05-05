@@ -12,7 +12,7 @@
 	<artifactId>CitizenScienceBackend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CitizenScienceBackend</name>
-	<description>Citizen Science Backend Application</description>
+	<description>EcoFlora Backend Application for citizen science workflows</description>
 	<url/>
 	<licenses>
 		<license/>

@@ -1,11 +1,11 @@
-package com.citizenScience.services;
+package com.citizenscience.services;
 
-import com.citizenScience.dto.UpdateUserRequest;
-import com.citizenScience.dto.UserResponse;
-import com.citizenScience.entities.User;
-import com.citizenScience.exceptions.UserAlreadyExistsException;
-import com.citizenScience.exceptions.UserNotFoundException;
-import com.citizenScience.repositories.UserRepository;
+import com.citizenscience.dto.UpdateUserRequest;
+import com.citizenscience.dto.UserResponse;
+import com.citizenscience.entities.User;
+import com.citizenscience.exceptions.UserAlreadyExistsException;
+import com.citizenscience.exceptions.UserNotFoundException;
+import com.citizenscience.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -101,7 +101,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
         // Act
-        UserResponse response = userService.updateCurrentUser(testUser, request);
+        userService.updateCurrentUser(testUser, request);
 
         // Assert
         assertThat(testUser.getNome()).isEqualTo("Luigi");
