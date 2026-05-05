@@ -18,8 +18,7 @@ paths:
     get:
       summary: Health check
       description: >
-        Returns the health status of the service together with information about
-        the compute device currently in use. Orchestration tools and load-balancers
+        Returns the health status of the service. Orchestration tools and load-balancers
         can poll this endpoint to decide whether the container is ready to serve traffic.
       operationId: healthCheck
       tags:
@@ -33,9 +32,6 @@ paths:
                 $ref: "#/components/schemas/HealthResponse"
               example:
                 status: healthy
-                accelerator_available: false
-                accelerator_info: null
-                device_in_use: cpu
 
   /models:
     get:
@@ -108,7 +104,6 @@ paths:
                 label: example_class
                 confidence: 0.9423
                 model_used: classifier_v1
-                device_used: cpu
         "400":
           description: The uploaded file is not an image
           content:
@@ -141,28 +136,12 @@ components:
       type: object
       required:
         - status
-        - accelerator_available
-        - accelerator_info
-        - device_in_use
       properties:
         status:
           type: string
           enum:
             - healthy
-          description: Current health status of the service.
-        accelerator_available:
-          type: boolean
-          description: Whether a hardware accelerator (e.g. GPU) is available on the host.
-        accelerator_info:
-          type: string
-          nullable: true
-          description: >
-            Human-readable identifier of the accelerator (e.g. device name),
-            or null if no accelerator is available.
-        device_in_use:
-          type: string
-          description: >
-            Compute device currently used for inference (e.g. "cpu", "cuda", "mps").
+          description: Current health status of the service. Returns "healthy" when the service is ready to serve traffic.
 
     ModelInfo:
       type: object
@@ -195,7 +174,6 @@ components:
         - label
         - confidence
         - model_used
-        - device_used
       properties:
         label:
           type: string
@@ -209,9 +187,6 @@ components:
         model_used:
           type: string
           description: Identifier of the model used for inference.
-        device_used:
-          type: string
-          description: Compute device used for inference (e.g. "cpu", "cuda:0").
 
     ErrorResponse:
       type: object

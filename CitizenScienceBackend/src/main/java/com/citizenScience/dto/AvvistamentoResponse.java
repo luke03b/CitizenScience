@@ -1,6 +1,6 @@
-package com.citizenScience.dto;
+package com.citizenscience.dto;
 
-import com.citizenScience.entities.Avvistamento;
+import com.citizenscience.entities.Avvistamento;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

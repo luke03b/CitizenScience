@@ -1,15 +1,15 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.config.SecurityConfig;
-import com.citizenScience.dto.AuthResponse;
-import com.citizenScience.dto.ChangePasswordRequest;
-import com.citizenScience.dto.LoginRequest;
-import com.citizenScience.dto.RegisterRequest;
-import com.citizenScience.dto.UserResponse;
-import com.citizenScience.entities.User;
-import com.citizenScience.repositories.UserRepository;
-import com.citizenScience.security.JwtUtil;
-import com.citizenScience.services.AuthService;
+import com.citizenscience.config.SecurityConfig;
+import com.citizenscience.dto.AuthResponse;
+import com.citizenscience.dto.ChangePasswordRequest;
+import com.citizenscience.dto.LoginRequest;
+import com.citizenscience.dto.RegisterRequest;
+import com.citizenscience.dto.UserResponse;
+import com.citizenscience.entities.User;
+import com.citizenscience.repositories.UserRepository;
+import com.citizenscience.security.JwtUtil;
+import com.citizenscience.services.AuthService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

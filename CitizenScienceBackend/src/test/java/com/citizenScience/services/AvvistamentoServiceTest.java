@@ -1,15 +1,15 @@
-package com.citizenScience.services;
+package com.citizenscience.services;
 
-import com.citizenScience.dto.AiIdentificationResult;
-import com.citizenScience.dto.AvvistamentoResponse;
-import com.citizenScience.dto.UpdateNotesRequest;
-import com.citizenScience.entities.Avvistamento;
-import com.citizenScience.entities.FotoAvvistamento;
-import com.citizenScience.entities.User;
-import com.citizenScience.exceptions.AvvistamentoNotFoundException;
-import com.citizenScience.exceptions.UnauthorizedAccessException;
-import com.citizenScience.repositories.AvvistamentoRepository;
-import com.citizenScience.repositories.FotoAvvistamentoRepository;
+import com.citizenscience.dto.AiIdentificationResult;
+import com.citizenscience.dto.AvvistamentoResponse;
+import com.citizenscience.dto.UpdateNotesRequest;
+import com.citizenscience.entities.Avvistamento;
+import com.citizenscience.entities.FotoAvvistamento;
+import com.citizenscience.entities.User;
+import com.citizenscience.exceptions.AvvistamentoNotFoundException;
+import com.citizenscience.exceptions.UnauthorizedAccessException;
+import com.citizenscience.repositories.AvvistamentoRepository;
+import com.citizenscience.repositories.FotoAvvistamentoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -141,9 +141,11 @@ class AvvistamentoServiceTest {
 
     @Test
     void givenNullPhoto_whenCreateAvvistamento_thenThrowsIllegalArgumentException() {
+        LocalDateTime timestamp = LocalDateTime.of(2025, 1, 1, 12, 0);
+
         // Act & Assert
         assertThatThrownBy(() -> avvistamentoService.createAvvistamento(
-                testUser, null, LocalDateTime.now(), 45.0, 9.0, null, null))
+                testUser, null, timestamp, 45.0, 9.0, null, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("photo");
     }
@@ -152,10 +154,11 @@ class AvvistamentoServiceTest {
     void givenEmptyPhoto_whenCreateAvvistamento_thenThrowsIllegalArgumentException() {
         // Arrange
         MockMultipartFile emptyPhoto = new MockMultipartFile("photo", new byte[0]);
+        LocalDateTime timestamp = LocalDateTime.of(2025, 1, 1, 12, 0);
 
         // Act & Assert
         assertThatThrownBy(() -> avvistamentoService.createAvvistamento(
-                testUser, emptyPhoto, LocalDateTime.now(), 45.0, 9.0, null, null))
+                testUser, emptyPhoto, timestamp, 45.0, 9.0, null, null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -164,6 +167,7 @@ class AvvistamentoServiceTest {
         // Arrange
         MockMultipartFile textFile = new MockMultipartFile(
                 "photo", "doc.txt", "text/plain", "not an image".getBytes());
+        LocalDateTime timestamp = LocalDateTime.of(2025, 1, 1, 12, 0);
 
         when(geocodingService.reverseGeocode(anyDouble(), anyDouble())).thenReturn("Via Roma");
         when(aiService.identifyFlower(any(), any(), any()))
@@ -173,7 +177,7 @@ class AvvistamentoServiceTest {
 
         // Act & Assert – savePhoto validates content type
         assertThatThrownBy(() -> avvistamentoService.createAvvistamento(
-                testUser, textFile, LocalDateTime.now(), 45.0, 9.0, null, null))
+                testUser, textFile, timestamp, 45.0, 9.0, null, null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("image");
     }
@@ -223,7 +227,7 @@ class AvvistamentoServiceTest {
         when(avvistamentoRepository.save(sighting)).thenReturn(sighting);
 
         // Act
-        AvvistamentoResponse response = avvistamentoService.updateNotes(testUser, sightingId, request);
+        avvistamentoService.updateNotes(testUser, sightingId, request);
 
         // Assert
         assertThat(sighting.getNote()).isEqualTo("Updated notes");
@@ -234,9 +238,10 @@ class AvvistamentoServiceTest {
     void givenNonExistentSighting_whenUpdateNotes_thenThrowsAvvistamentoNotFoundException() {
         // Arrange
         when(avvistamentoRepository.findById(sightingId)).thenReturn(Optional.empty());
+                UpdateNotesRequest request = new UpdateNotesRequest("notes");
 
         // Act & Assert
-        assertThatThrownBy(() -> avvistamentoService.updateNotes(testUser, sightingId, new UpdateNotesRequest("notes")))
+                assertThatThrownBy(() -> avvistamentoService.updateNotes(testUser, sightingId, request))
                 .isInstanceOf(AvvistamentoNotFoundException.class);
     }
 
@@ -245,9 +250,10 @@ class AvvistamentoServiceTest {
         // Arrange
         User otherUser = User.builder().id(UUID.randomUUID()).email("other@example.com").build();
         when(avvistamentoRepository.findById(sightingId)).thenReturn(Optional.of(sighting));
+                UpdateNotesRequest request = new UpdateNotesRequest("notes");
 
         // Act & Assert
-        assertThatThrownBy(() -> avvistamentoService.updateNotes(otherUser, sightingId, new UpdateNotesRequest("notes")))
+                assertThatThrownBy(() -> avvistamentoService.updateNotes(otherUser, sightingId, request))
                 .isInstanceOf(UnauthorizedAccessException.class);
     }
 

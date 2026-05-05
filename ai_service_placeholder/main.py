@@ -102,7 +102,6 @@ async def identify_flower(photo: UploadFile = File(...), model_name: str = Form(
         "flower_name": flower_name,
         "confidence": 0.99,
         "model_used": model_name,
-        "device_used": "cpu",
     }
 
 
@@ -115,8 +114,5 @@ def health_check():
         dict: A dictionary with the service health status.
     """
     return {
-        "status": "healthy",
-        "cuda_available": False,
-        "cuda_device": None,
-        "device_in_use": "cpu",
+        "status": "healthy"
     }

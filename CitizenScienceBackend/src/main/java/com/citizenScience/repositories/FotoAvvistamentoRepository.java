@@ -1,6 +1,6 @@
-package com.citizenScience.repositories;
+package com.citizenscience.repositories;
 
-import com.citizenScience.entities.FotoAvvistamento;
+import com.citizenscience.entities.FotoAvvistamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

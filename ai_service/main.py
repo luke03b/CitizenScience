@@ -2,7 +2,7 @@
 AI Flower Identification Service.
 
 This FastAPI application provides endpoints for identifying flowers from photos
-and managing AI models. It serves as the AI microservice for the Citizen Science platform.
+and managing AI models. It serves as the AI microservice for EcoFlora, an application built for citizen science.
 """
 
 from fastapi import FastAPI, File, UploadFile, Form
@@ -274,7 +274,6 @@ async def identify_flower(photo: UploadFile = File(...), model_name: str = Form(
             "flower_name": predicted_class,
             "confidence": float(confidence),
             "model_used": model_name,
-            "device_used": str(device)
         }
         
     except Exception:
@@ -338,17 +337,10 @@ def health_check():
     Returns the health status of the service for monitoring and orchestration tools.
 
     Returns:
-        dict: A dictionary with the service health status and device information.
+        dict: A dictionary with the service health status.
     """
-    # Check if CUDA is available
-    cuda_available = torch.cuda.is_available()
-    cuda_device = torch.cuda.get_device_name(0) if cuda_available else None
-    
     return {
-        "status": "healthy",
-        "cuda_available": cuda_available,
-        "cuda_device": cuda_device,
-        "device_in_use": "cuda" if cuda_available else "cpu"
+        "status": "healthy"
     }
 
 

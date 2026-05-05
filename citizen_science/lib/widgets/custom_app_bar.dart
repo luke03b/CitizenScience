@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'themed_logo.dart';
 
 /// A custom application bar widget with optional logo and actions.
 ///
 /// This widget provides a consistent app bar design throughout the app,
-/// featuring an optional science icon logo and customizable actions.
+/// featuring an optional app logo and customizable actions.
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// The title text displayed in the app bar.
   final String title;
 
-  /// Whether to show the science icon logo next to the title.
+  /// Whether to show the app logo next to the title.
   final bool showLogo;
 
   /// Optional list of action widgets displayed on the right side.
@@ -38,11 +39,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (showLogo) ...[
-            Icon(
-              Icons.science,
-              color: Theme.of(context).colorScheme.primary,
-              size: 24,
-            ),
+            ThemedLogo(width: 24, height: 24, fit: BoxFit.contain),
             const SizedBox(width: 8),
           ],
           Text(title),

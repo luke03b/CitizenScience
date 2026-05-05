@@ -1,9 +1,9 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.dto.UpdateUserRequest;
-import com.citizenScience.dto.UserResponse;
-import com.citizenScience.entities.User;
-import com.citizenScience.services.UserService;
+import com.citizenscience.dto.UpdateUserRequest;
+import com.citizenscience.dto.UserResponse;
+import com.citizenscience.entities.User;
+import com.citizenscience.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * Provides endpoints for authenticated users to view and update their profile information.
  * All endpoints require JWT authentication.
  * 
- * @author Citizen Science Team
+ * @author EcoFlora Team
  * @version 1.0
  */
 @RestController

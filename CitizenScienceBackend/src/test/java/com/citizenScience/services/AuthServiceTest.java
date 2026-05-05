@@ -1,15 +1,15 @@
-package com.citizenScience.services;
+package com.citizenscience.services;
 
-import com.citizenScience.dto.AuthResponse;
-import com.citizenScience.dto.ChangePasswordRequest;
-import com.citizenScience.dto.LoginRequest;
-import com.citizenScience.dto.RegisterRequest;
-import com.citizenScience.entities.User;
-import com.citizenScience.exceptions.InvalidCredentialsException;
-import com.citizenScience.exceptions.UserAlreadyExistsException;
-import com.citizenScience.exceptions.UserNotFoundException;
-import com.citizenScience.repositories.UserRepository;
-import com.citizenScience.security.JwtUtil;
+import com.citizenscience.dto.AuthResponse;
+import com.citizenscience.dto.ChangePasswordRequest;
+import com.citizenscience.dto.LoginRequest;
+import com.citizenscience.dto.RegisterRequest;
+import com.citizenscience.entities.User;
+import com.citizenscience.exceptions.InvalidCredentialsException;
+import com.citizenscience.exceptions.UserAlreadyExistsException;
+import com.citizenscience.exceptions.UserNotFoundException;
+import com.citizenscience.repositories.UserRepository;
+import com.citizenscience.security.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -1,14 +1,14 @@
-package com.citizenScience.services;
+package com.citizenscience.services;
 
-import com.citizenScience.dto.AvvistamentoResponse;
-import com.citizenScience.dto.UpdateNotesRequest;
-import com.citizenScience.entities.Avvistamento;
-import com.citizenScience.entities.FotoAvvistamento;
-import com.citizenScience.entities.User;
-import com.citizenScience.exceptions.AvvistamentoNotFoundException;
-import com.citizenScience.exceptions.UnauthorizedAccessException;
-import com.citizenScience.repositories.AvvistamentoRepository;
-import com.citizenScience.repositories.FotoAvvistamentoRepository;
+import com.citizenscience.dto.AvvistamentoResponse;
+import com.citizenscience.dto.UpdateNotesRequest;
+import com.citizenscience.entities.Avvistamento;
+import com.citizenscience.entities.FotoAvvistamento;
+import com.citizenscience.entities.User;
+import com.citizenscience.exceptions.AvvistamentoNotFoundException;
+import com.citizenscience.exceptions.UnauthorizedAccessException;
+import com.citizenscience.repositories.AvvistamentoRepository;
+import com.citizenscience.repositories.FotoAvvistamentoRepository;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -28,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * Service for managing sighting (avvistamento) operations.
@@ -38,7 +37,7 @@ import java.util.stream.Collectors;
 public class AvvistamentoService {
 
     private static final Logger logger = LoggerFactory.getLogger(AvvistamentoService.class);
-    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = (long) 10 * 1024 * 1024;
     
     private final AvvistamentoRepository avvistamentoRepository;
     private final FotoAvvistamentoRepository fotoAvvistamentoRepository;
@@ -141,8 +140,7 @@ public class AvvistamentoService {
      */
     private List<FotoAvvistamento> savePhoto(Avvistamento avvistamento, MultipartFile photo) throws IOException {
         List<FotoAvvistamento> fotoList = new ArrayList<>();
-        String avvistamentoDir = uploadDir + "/" + avvistamento.getId();
-        Path uploadPath = Paths.get(avvistamentoDir);
+        Path uploadPath = Paths.get(uploadDir, avvistamento.getId().toString());
 
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
@@ -161,7 +159,7 @@ public class AvvistamentoService {
 
         Files.copy(photo.getInputStream(), filePath);
 
-        String relativePath = avvistamento.getId() + "/" + fileName;
+        String relativePath = Paths.get(avvistamento.getId().toString(), fileName).toString();
         FotoAvvistamento foto = FotoAvvistamento.builder()
                 .avvistamento(avvistamento)
                 .photoPath(relativePath)
@@ -245,7 +243,7 @@ public class AvvistamentoService {
             throw new UnauthorizedAccessException("You are not authorized to delete this avvistamento");
         }
 
-        Path avvistamentoDir = Paths.get(uploadDir + "/" + avvistamento.getId());
+        Path avvistamentoDir = Paths.get(uploadDir, avvistamento.getId().toString());
         if (Files.exists(avvistamentoDir)) {
             try {
                 Files.walk(avvistamentoDir)
@@ -254,11 +252,11 @@ public class AvvistamentoService {
                             try {
                                 Files.deleteIfExists(path);
                             } catch (IOException e) {
-                                logger.warn("Failed to delete file: " + path);
+                                logger.warn("Failed to delete file: {}", path);
                             }
                         });
             } catch (IOException e) {
-                logger.error("Failed to delete directory: " + avvistamentoDir, e);
+                logger.error("Failed to delete directory: {}", avvistamentoDir, e);
             }
         }
 
@@ -274,7 +272,7 @@ public class AvvistamentoService {
     public List<AvvistamentoResponse> getAllAvvistamenti() {
         return avvistamentoRepository.findAll().stream()
                 .map(AvvistamentoResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -287,7 +285,7 @@ public class AvvistamentoService {
     public List<AvvistamentoResponse> getAvvistamentiByUser(UUID userId) {
         return avvistamentoRepository.findByUserId(userId).stream()
                 .map(AvvistamentoResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -303,6 +301,6 @@ public class AvvistamentoService {
         Double radiusMeters = radiusKm * 1000;
         return avvistamentoRepository.findWithinRadius(lat, lng, radiusMeters).stream()
                 .map(AvvistamentoResponse::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

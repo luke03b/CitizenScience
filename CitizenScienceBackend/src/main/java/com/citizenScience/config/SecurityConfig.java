@@ -1,6 +1,6 @@
-package com.citizenScience.config;
+package com.citizenscience.config;
 
-import com.citizenScience.security.JwtAuthenticationFilter;
+import com.citizenscience.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,39 +44,42 @@ public class SecurityConfig {
      * 
      * @param http the HttpSecurity to configure
      * @return configured SecurityFilterChain
-     * @throws Exception if configuration fails
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
-                .ignoringRequestMatchers(
-                    "/api/**",
-                    "/actuator/**",
-                    "/v3/api-docs/**",
-                    "/swagger-ui/**",
-                    "/swagger-ui.html"
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
+        try {
+            http
+                .csrf(csrf -> csrf
+                    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                    .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                    .ignoringRequestMatchers(
+                        "/api/**",
+                        "/actuator/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html"
+                    )
                 )
-            )
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/sightings", "/api/sightings/user/**", "/api/sightings/location").permitAll()
-                .requestMatchers("/api/photos/**").permitAll()
-                .requestMatchers("/actuator/health").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
-                .anyRequest().authenticated()
-            )
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) ->
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()))
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/sightings", "/api/sightings/user/**", "/api/sightings/location").permitAll()
+                    .requestMatchers("/api/photos/**").permitAll()
+                    .requestMatchers("/actuator/health").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                    .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) ->
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage()))
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+            return http.build();
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to configure security filter chain", e);
+        }
     }
 
     /**

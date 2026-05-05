@@ -1,6 +1,6 @@
-package com.citizenScience.config;
+package com.citizenscience.config;
 
-import com.citizenScience.services.AiService;
+import com.citizenscience.services.AiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

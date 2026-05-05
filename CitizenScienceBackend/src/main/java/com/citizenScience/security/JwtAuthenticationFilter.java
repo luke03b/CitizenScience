@@ -1,7 +1,7 @@
-package com.citizenScience.security;
+package com.citizenscience.security;
 
-import com.citizenScience.entities.User;
-import com.citizenScience.repositories.UserRepository;
+import com.citizenscience.entities.User;
+import com.citizenscience.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,11 +1,11 @@
 {
-    "name": "Citizen Science",
+    "name": "EcoFlora",
     "short_name": "CitizenSci",
-    "description": "Citizen Science Progressive Web App",
+    "description": "EcoFlora Progressive Web App for citizen science",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",
-    "theme_color": "#673AB7",
+    "theme_color": "#0A710D",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
@@ -13,13 +13,25 @@
             "src": "icons/Icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
         },
         {
             "src": "icons/Icon-512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "any maskable"
+            "purpose": "any"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
         }
     ]
 }

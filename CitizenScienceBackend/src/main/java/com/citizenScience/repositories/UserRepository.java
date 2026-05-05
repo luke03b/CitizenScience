@@ -1,6 +1,6 @@
-package com.citizenScience.repositories;
+package com.citizenscience.repositories;
 
-import com.citizenScience.entities.User;
+import com.citizenscience.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

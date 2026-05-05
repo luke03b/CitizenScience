@@ -1,4 +1,4 @@
-/// Model representing a wildlife sighting in the Citizen Science app.
+/// Model representing a wildlife sighting in the EcoFlora app.
 ///
 /// Contains information about the sighting including location,
 /// date, images, and associated user data.

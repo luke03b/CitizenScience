@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:citizen_science/widgets/custom_app_bar.dart';
 
 Widget _wrap(PreferredSizeWidget appBar) =>
@@ -13,16 +14,16 @@ void main() {
       ) async {
         // Arrange & Act
         await tester.pumpWidget(
-          _wrap(const CustomAppBar(title: 'Citizen Science')),
+          _wrap(const CustomAppBar(title: 'EcoFlora')),
         );
 
         // Assert
-        expect(find.text('Citizen Science'), findsOneWidget);
+        expect(find.text('EcoFlora'), findsOneWidget);
       });
     });
 
     group('logo visibility', () {
-      testWidgets('given showLogo true when built then shows science icon', (
+      testWidgets('given showLogo true when built then shows app logo', (
         WidgetTester tester,
       ) async {
         // Arrange & Act
@@ -31,10 +32,19 @@ void main() {
         );
 
         // Assert
-        expect(find.byIcon(Icons.science), findsOneWidget);
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is SvgPicture &&
+                widget.bytesLoader is SvgAssetLoader &&
+                (widget.bytesLoader as SvgAssetLoader).assetName ==
+                    'assets/images/Logo.svg',
+          ),
+          findsOneWidget,
+        );
       });
 
-      testWidgets('given showLogo false when built then hides science icon', (
+      testWidgets('given showLogo false when built then hides app logo', (
         WidgetTester tester,
       ) async {
         // Arrange & Act
@@ -43,17 +53,35 @@ void main() {
         );
 
         // Assert
-        expect(find.byIcon(Icons.science), findsNothing);
+        expect(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is SvgPicture &&
+                widget.bytesLoader is SvgAssetLoader &&
+                (widget.bytesLoader as SvgAssetLoader).assetName ==
+                    'assets/images/Logo.svg',
+          ),
+          findsNothing,
+        );
       });
 
       testWidgets(
-        'given showLogo default (true) when built then shows science icon',
+        'given showLogo default (true) when built then shows app logo',
         (WidgetTester tester) async {
           // Arrange & Act
           await tester.pumpWidget(_wrap(const CustomAppBar(title: 'Test')));
 
           // Assert — default value is true
-          expect(find.byIcon(Icons.science), findsOneWidget);
+          expect(
+            find.byWidgetPredicate(
+              (widget) =>
+                  widget is SvgPicture &&
+                  widget.bytesLoader is SvgAssetLoader &&
+                  (widget.bytesLoader as SvgAssetLoader).assetName ==
+                      'assets/images/Logo.svg',
+            ),
+            findsOneWidget,
+          );
         },
       );
     });

@@ -1,6 +1,6 @@
 # ai_service
 
-A FastAPI microservice that performs flower species identification using a ResNet18 convolutional neural network. It loads trained PyTorch model weights and exposes REST endpoints for inference.
+A FastAPI microservice that performs flower species identification for EcoFlora, an application built for citizen science. It loads trained PyTorch model weights and exposes REST endpoints for inference.
 
 ## Role in Architecture
 
@@ -89,7 +89,7 @@ The image is based on `python:3.11.14-slim`. Model weights in `AiModels/` are co
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/` | Root health check (returns status message) |
-| GET | `/health` | Health status with CUDA availability info |
+| GET | `/health` | Health status - returns ready/healthy state |
 | GET | `/models` | List available models with descriptions |
 | POST | `/identify` | Identify flower from uploaded image |
 | POST | `/clear_cache` | Clear model cache and free GPU memory |
@@ -109,8 +109,7 @@ The image is based on `python:3.11.14-slim`. Model weights in `AiModels/` are co
 {
   "flower_name": "O. garganica",
   "confidence": 0.9123,
-  "model_used": "model_full_internet_last.pt",
-  "device_used": "cuda"
+  "model_used": "model_full_internet_last.pt"
 }
 ```
 

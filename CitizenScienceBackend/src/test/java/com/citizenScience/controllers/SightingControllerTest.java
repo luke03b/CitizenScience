@@ -1,12 +1,12 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.config.SecurityConfig;
-import com.citizenScience.dto.AvvistamentoResponse;
-import com.citizenScience.dto.UpdateNotesRequest;
-import com.citizenScience.entities.User;
-import com.citizenScience.repositories.UserRepository;
-import com.citizenScience.security.JwtUtil;
-import com.citizenScience.services.AvvistamentoService;
+import com.citizenscience.config.SecurityConfig;
+import com.citizenscience.dto.AvvistamentoResponse;
+import com.citizenscience.dto.UpdateNotesRequest;
+import com.citizenscience.entities.User;
+import com.citizenscience.repositories.UserRepository;
+import com.citizenscience.security.JwtUtil;
+import com.citizenscience.services.AvvistamentoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -27,7 +27,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;

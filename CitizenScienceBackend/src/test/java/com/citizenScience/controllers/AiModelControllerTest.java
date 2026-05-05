@@ -1,13 +1,13 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.config.SecurityConfig;
-import com.citizenScience.dto.AiModelInfo;
-import com.citizenScience.entities.AiModelSelection;
-import com.citizenScience.entities.User;
-import com.citizenScience.repositories.AiModelSelectionRepository;
-import com.citizenScience.repositories.UserRepository;
-import com.citizenScience.security.JwtUtil;
-import com.citizenScience.services.AiService;
+import com.citizenscience.config.SecurityConfig;
+import com.citizenscience.dto.AiModelInfo;
+import com.citizenscience.entities.AiModelSelection;
+import com.citizenscience.entities.User;
+import com.citizenscience.repositories.AiModelSelectionRepository;
+import com.citizenscience.repositories.UserRepository;
+import com.citizenscience.security.JwtUtil;
+import com.citizenscience.services.AiService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;

@@ -1,10 +1,10 @@
-package com.citizenScience;
+package com.citizenscience;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Main application class for the Citizen Science Backend.
+ * Main application class for the EcoFlora backend.
  * Entry point for the Spring Boot application.
  */
 @SpringBootApplication

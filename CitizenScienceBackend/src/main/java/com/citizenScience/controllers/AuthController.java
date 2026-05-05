@@ -1,8 +1,8 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
-import com.citizenScience.dto.*;
-import com.citizenScience.entities.User;
-import com.citizenScience.services.AuthService;
+import com.citizenscience.dto.*;
+import com.citizenscience.entities.User;
+import com.citizenscience.services.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -21,7 +21,7 @@ import java.util.Map;
  * Handles user registration, login, and password management with JWT-based authentication.
  * All authentication endpoints are publicly accessible except password change.
  * 
- * @author Citizen Science Team
+ * @author EcoFlora Team
  * @version 1.0
  */
 @RestController

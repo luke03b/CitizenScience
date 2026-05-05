@@ -1,4 +1,4 @@
-package com.citizenScience.config;
+package com.citizenscience.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -27,10 +27,10 @@ public class OpenApiConfig {
         
         return new OpenAPI()
                 .info(new Info()
-                        .title("Citizen Science Backend API")
+                        .title("EcoFlora Backend API")
                         .version("1.0")
-                        .description("API documentation for the Citizen Science Backend application. " +
-                                "This API allows users to manage citizen science sightings, user accounts, and authentication."))
+                        .description("API documentation for the EcoFlora backend application. " +
+                                "EcoFlora is an application built for citizen science and allows users to manage sightings, user accounts, and authentication."))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,

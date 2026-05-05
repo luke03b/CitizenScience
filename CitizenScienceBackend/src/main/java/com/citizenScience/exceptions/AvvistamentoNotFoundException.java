@@ -1,4 +1,4 @@
-package com.citizenScience.exceptions;
+package com.citizenscience.exceptions;
 
 /**
  * Exception thrown when a requested sighting is not found.

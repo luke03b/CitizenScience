@@ -1,6 +1,6 @@
-# citizen_science
+# EcoFlora
 
-A Flutter web application for citizen scientists and researchers to record, view, and manage flower sightings. The app is designed as a Progressive Web App with offline caching support, enabling field work without a reliable internet connection.
+EcoFlora is the Flutter web frontend for the citizen science platform. It lets citizen scientists and researchers record, view, and manage flower sightings. The app is designed as a Progressive Web App with offline caching support, enabling field work without a reliable internet connection.
 
 ## Role in Architecture
 
@@ -47,51 +47,6 @@ flutter run -d chrome
 
 By default the app expects the backend at `http://localhost:8080`. Adjust API URLs in the code if your backend runs elsewhere.
 
-## Testing
-
-The frontend includes an automated Flutter test suite focused on:
-
-- Widget behavior and rendering checks
-- Model and DTO validation
-- Regression checks for frontend logic
-
-### Run all tests
-
-From `citizen_science`:
-
-```bash
-flutter test
-```
-
-### Run a single test suite
-
-```bash
-flutter test test/pending_sighting_model_test.dart
-```
-
-### Test suites and coverage
-
-| Test suite | Brief description |
-|------------|-------------------|
-| `test/widget_test.dart` | Smoke tests for app bootstrap and provider wiring. |
-| `test/pending_sighting_model_test.dart` | Serialization/deserialization of pending sightings, including null notes handling. |
-| `test/models/sighting_model_test.dart` | Sighting model computed fields (`firstImage`, `formattedDate`) and optional AI metadata. |
-| `test/models/user_model_test.dart` | User model helpers (`fullName`, `isResearcher`) and edge cases. |
-| `test/dto/auth_response_test.dart` | Auth response JSON parsing/serialization with nested user payload. |
-| `test/dto/login_request_test.dart` | Login request payload serialization and key validation. |
-| `test/dto/sighting_response_test.dart` | Full sighting response mapping, optional fields, lists, and round-trip JSON checks. |
-| `test/dto/user_response_test.dart` | User response mapping, `fullName`, and round-trip JSON checks. |
-| `test/providers/theme_provider_test.dart` | Theme state defaults, toggling behavior, and listener notifications. |
-| `test/providers/locale_provider_test.dart` | Locale persistence via SharedPreferences, updates, and notification behavior. |
-| `test/utils/validation_utils_test.dart` | Coordinate validation rules: valid inputs, null/empty, non-numeric, and out-of-range values. |
-| `test/utils/url_utils_test.dart` | URL normalization for absolute/relative paths and list conversion behavior. |
-| `test/widgets/custom_app_bar_test.dart` | App bar rendering of title/logo/actions/leading widget and preferred size. |
-| `test/widgets/custom_button_test.dart` | Button rendering and interaction for default, loading, outlined, and icon variants. |
-| `test/widgets/custom_text_field_test.dart` | Text field behavior for labels/hints, password toggle, icons, enabled state, and input. |
-| `test/widgets/sighting_card_test.dart` | Sighting card content rendering, placeholders, icons, and tap callback behavior. |
-
-This test suite is also executed in CI through `.github/workflows/frontend-tests.yml` on push and pull request.
-
 ## Environment Variables
 
 The frontend does not require environment variables at runtime. Build-time configuration (API base URL) is handled in the Dart code. If deploying to a different domain, update the nginx proxy configuration or Flutter constants accordingly.
@@ -129,15 +84,6 @@ The Dockerfile uses a two-stage build:
 - Maps are rendered with `flutter_map` and OpenStreetMap tiles. Marker clustering is provided by `flutter_map_marker_cluster`.
 - JWT tokens are decoded client-side using `jwt_decoder` to extract user information.
 - Photos are captured or selected via `image_picker`.
-
-## CI/CD and Code Quality
-
-The frontend is validated by dedicated GitHub Actions workflows.
-
-| Workflow | File | Trigger | Purpose |
-|----------|------|---------|---------|
-| Frontend Tests | `.github/workflows/frontend-tests.yml` | push, pull_request, manual | Runs the frontend test suite with `flutter test`. |
-| Frontend Quality | `.github/workflows/frontend-quality.yml` | push, pull_request, manual | Runs formatting and static analysis (`dart format --set-exit-if-changed`, `flutter analyze`). |
 
 ## Main Screens
 

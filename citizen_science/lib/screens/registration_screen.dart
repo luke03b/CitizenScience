@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import '../providers/app_state_provider.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
+import '../widgets/themed_logo.dart';
 import '../l10n/app_locale.dart';
 import '../utils/error_handler.dart';
 import 'main_layout_screen.dart';
@@ -99,11 +101,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Logo
-                    Icon(
-                      Icons.science,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    ThemedLogo(width: 80, height: 80, fit: BoxFit.contain),
                     const SizedBox(height: 16),
                     Text(
                       AppLocale.citizenScience.getString(context),

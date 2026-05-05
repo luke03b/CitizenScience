@@ -1,4 +1,4 @@
-/// Model representing a user in the Citizen Science app.
+/// Model representing a user in the EcoFlora app.
 ///
 /// Contains user profile information including name, email, and role.
 class UserModel {

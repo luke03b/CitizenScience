@@ -1,6 +1,6 @@
-# Citizen Science Platform
+# EcoFlora Platform
 
-A multi-container application for recording and identifying wild flower sightings. Researchers and citizen scientists use the mobile-friendly web interface to photograph flowers in the field. Uploaded images are automatically classified by a machine learning service, and all observations are stored with geospatial metadata for later analysis.
+EcoFlora is a multi-container application built for citizen science, focused on recording and identifying wild flower sightings. Researchers and citizen scientists use the mobile-friendly web interface to photograph flowers in the field. Uploaded images are automatically classified by a machine learning service, and all observations are stored with geospatial metadata for later analysis.
 
 ## Architecture
 
@@ -107,12 +107,10 @@ docker compose logs -f ai_service
 
 ## CI/CD and Code Quality
 
-The repository includes multiple GitHub Actions workflows for frontend and backend validation, plus security checks.
+The repository includes multiple GitHub Actions workflows for backend validation and security checks.
 
 | Workflow | File | Trigger | Purpose |
 |----------|------|---------|---------|
-| Frontend Tests | `.github/workflows/frontend-tests.yml` | push, pull_request, manual | Runs the frontend test suite with Flutter (`flutter test`). |
-| Frontend Quality | `.github/workflows/frontend-quality.yml` | push, pull_request, manual | Runs frontend quality checks (`dart format --set-exit-if-changed` and `flutter analyze`). |
 | Backend Tests | `.github/workflows/backend-tests.yml` | push, pull_request, manual | Runs the backend test suite with Maven (`clean test`). |
 | Backend Quality | `.github/workflows/backend-quality.yml` | push, pull_request, manual | Runs backend quality checks with Maven (`clean verify`). |
 | CodeQL | `.github/workflows/codeql.yml` | push, pull_request, weekly schedule | Performs static security analysis for Java/Kotlin. |
@@ -126,12 +124,10 @@ Dependency updates are also automated through Dependabot:
 
 To enforce quality gates before merge, enable branch protection on `main` and require these checks:
 
-1. `Frontend Tests / test-frontend`
-2. `Frontend Quality / quality-frontend`
-3. `Backend Tests / test-backend`
-4. `Backend Quality / quality-backend`
-5. `CodeQL / Analyze Java with CodeQL`
-6. `Dependency Review / dependency-review`
+1. `Backend Tests / test-backend`
+2. `Backend Quality / quality-backend`
+3. `CodeQL / Analyze Java with CodeQL`
+4. `Dependency Review / dependency-review`
 
 ## Local SonarQube (Optional)
 
@@ -181,7 +177,7 @@ On Windows PowerShell:
 
 ```powershell
 cd CitizenScienceBackend
-.\mvnw.cmd -B clean verify sonar:sonar -Dsonar.host.url=http://localhost:9000 -Dsonar.token=<YOUR_TOKEN> -Dsonar.projectKey=CitizenScienceBackend
+.\mvnw.cmd -B clean verify "org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar" "-Dsonar.host.url=http://localhost:9000" "-Dsonar.token=<YOUR_TOKEN>" "-Dsonar.projectKey=CitizenScienceBackend"
 ```
 
 This local SonarQube flow is intentionally separate from GitHub-hosted workflows, so CI quality checks do not depend on a machine running SonarQube.

@@ -1,4 +1,4 @@
-/// Shared UI constants for the Citizen Science application.
+/// Shared UI constants for the EcoFlora application.
 library;
 
 /// Responsive breakpoint for mobile vs desktop layout.

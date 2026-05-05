@@ -1,4 +1,4 @@
-package com.citizenScience.dto;
+package com.citizenscience.dto;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;

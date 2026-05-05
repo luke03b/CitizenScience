@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
--- CITIZEN SCIENCE - Schema Completo
+-- ECOFLORA - Schema Completo
 -- (includes ai_container_models, descriptions, and is_default)
 -- ═══════════════════════════════════════════════════════════════
 

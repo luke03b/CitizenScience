@@ -1,6 +1,6 @@
 # CitizenScienceBackend
 
-The backend service for the Citizen Science platform. Built with Spring Boot 4, it exposes a REST API for user authentication, sighting management, and AI model orchestration.
+The backend service for EcoFlora, an application built for citizen science. Built with Spring Boot 4, it exposes a REST API for user authentication, sighting management, and AI model orchestration.
 
 ## Role in Architecture
 
@@ -69,27 +69,11 @@ On Windows PowerShell:
 .\mvnw.cmd test
 ```
 
-### Run a single test suite
+### Run a single test class
 
 ```bash
 ./mvnw -Dtest=AuthControllerTest test
 ```
-
-### Test suites and coverage
-
-| Test suite | Brief description |
-|------------|-------------------|
-| `CitizenScienceBackendApplicationTests` | Spring Boot context load smoke test and core bean wiring validation. |
-| `AuthControllerTest` | Authentication endpoints behavior (`register`, `login`, `change-password`) and request/response validation. |
-| `UserControllerTest` | Current-user profile retrieval/update endpoints, including access control scenarios. |
-| `SightingControllerTest` | Sighting API contract for creation, listing, filtering, updates, and deletion paths. |
-| `AiModelControllerTest` | AI model endpoints for scan/list/select/default configuration, including role/authorization checks. |
-| `AuthServiceTest` | Authentication business logic: registration, login, password change, and error handling. |
-| `UserServiceTest` | User domain operations and validations (lookup/update and related failure cases). |
-| `AvvistamentoServiceTest` | Sighting service logic: persistence, photo handling, filters, ownership checks, and update/delete flows. |
-| `AiServiceTest` | AI container integration logic: model scan, selection fallback, and classification handling. |
-| `JwtUtilTest` | JWT generation/parsing/validation (claims, expiration, malformed token scenarios). |
-| `GlobalExceptionHandlerTest` | Mapping of backend exceptions to HTTP status codes and error payload structure. |
 
 ### Test reports
 
@@ -98,8 +82,6 @@ After execution, Maven Surefire reports are available in:
 - `target/surefire-reports/`
 
 This test suite is also executed in CI through `.github/workflows/backend-tests.yml` on push and pull request.
-
-Additional backend quality checks run through `.github/workflows/backend-quality.yml`, which executes `./mvnw -B -ntp clean verify`.
 
 ## Environment Variables
 

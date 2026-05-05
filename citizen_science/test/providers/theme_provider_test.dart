@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:citizen_science/providers/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('ThemeProvider', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
     test('isDarkMode is false by default', () {
       // Arrange
       final provider = ThemeProvider();
@@ -88,6 +93,34 @@ void main() {
 
       // Assert
       expect(provider.currentTheme.brightness, Brightness.dark);
+    });
+
+    test('loadTheme restores saved dark mode preference', () async {
+      // Arrange
+      SharedPreferences.setMockInitialValues({'is_dark_mode': true});
+      final provider = ThemeProvider();
+
+      // Act
+      await provider.loadTheme();
+
+      // Assert
+      expect(provider.isDarkMode, isTrue);
+      expect(provider.currentTheme.brightness, Brightness.dark);
+    });
+
+    test('toggleTheme persists the selected theme', () async {
+      // Arrange
+      final provider = ThemeProvider();
+
+      // Act
+      provider.toggleTheme();
+      await Future<void>.delayed(Duration.zero);
+
+      final prefs = await SharedPreferences.getInstance();
+
+      // Assert
+      expect(provider.isDarkMode, isTrue);
+      expect(prefs.getBool('is_dark_mode'), isTrue);
     });
   });
 }

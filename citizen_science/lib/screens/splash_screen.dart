@@ -5,6 +5,7 @@ import '../l10n/app_locale.dart';
 import '../providers/app_state_provider.dart';
 import 'login_screen.dart';
 import 'main_layout_screen.dart';
+import '../widgets/themed_logo.dart';
 
 /// Initial splash screen displayed when the app launches.
 ///
@@ -69,10 +70,20 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ],
               ),
-              child: Icon(
-                Icons.science,
-                size: 80,
-                color: Theme.of(context).colorScheme.primary,
+              child: Padding(
+                padding: const EdgeInsets.all(14.0),
+                child: SizedBox(
+                  width: 80,
+                  height: 80,
+                  child: Center(
+                    child: ThemedLogo(
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.contain,
+                      useThemeAsset: false,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 30),

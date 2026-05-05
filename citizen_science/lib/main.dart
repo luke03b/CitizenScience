@@ -7,14 +7,16 @@ import 'providers/locale_provider.dart';
 import 'l10n/app_locale.dart';
 import 'screens/splash_screen.dart';
 
-/// Entry point for the Citizen Science Flutter application.
+/// Entry point for the EcoFlora Flutter application.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterLocalization.instance.ensureInitialized();
+  final themeProvider = ThemeProvider();
+  await themeProvider.loadTheme();
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => AppStateProvider()),
         ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
@@ -23,7 +25,7 @@ void main() async {
   );
 }
 
-/// Root widget of the Citizen Science application.
+/// Root widget of the EcoFlora application.
 ///
 /// Sets up the MaterialApp with theme management, localization and navigation.
 class MyApp extends StatefulWidget {
@@ -64,7 +66,7 @@ class _MyAppState extends State<MyApp> {
         _localization.translate(localeProvider.locale.languageCode);
 
         return MaterialApp(
-          title: 'Citizen Science',
+          title: 'EcoFlora',
           debugShowCheckedModeBanner: false,
           theme: themeProvider.currentTheme,
           supportedLocales: _localization.supportedLocales,

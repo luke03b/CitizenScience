@@ -1,4 +1,4 @@
-package com.citizenScience.controllers;
+package com.citizenscience.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,7 +51,6 @@ public class PhotoController {
                 Files.createDirectories(uploadPath);
                 logger.info("Created upload directory: {}", uploadDir);
             } catch (IOException e) {
-                logger.error("Failed to create upload directory: {}", uploadDir, e);
                 throw new IllegalStateException("Cannot initialize photo upload directory", e);
             }
         } else if (!Files.isDirectory(uploadPath) || !Files.isReadable(uploadPath)) {
@@ -77,16 +76,12 @@ public class PhotoController {
     public ResponseEntity<Resource> getPhoto(
             @Parameter(description = "Sighting ID", required = true) @PathVariable String avvistamentoId,
             @Parameter(description = "Photo filename", required = true) @PathVariable String filename) {
+        if (!isValidUuid(avvistamentoId)) {
+            logger.warn("Invalid UUID format for avvistamentoId: {}", avvistamentoId);
+            return ResponseEntity.notFound().build();
+        }
         
         try {
-            // Validate that avvistamentoId is a valid UUID
-            try {
-                UUID.fromString(avvistamentoId);
-            } catch (IllegalArgumentException e) {
-                logger.warn("Invalid UUID format for avvistamentoId: {}", avvistamentoId);
-                return ResponseEntity.notFound().build();
-            }
-            
             // Construct the file path
             Path filePath = Paths.get(uploadDir).resolve(avvistamentoId).resolve(filename).normalize();
             
@@ -123,6 +118,15 @@ public class PhotoController {
         } catch (IOException e) {
             logger.error("Error reading photo: {}/{}", avvistamentoId, filename, e);
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    private boolean isValidUuid(String avvistamentoId) {
+        try {
+            UUID.fromString(avvistamentoId);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 }

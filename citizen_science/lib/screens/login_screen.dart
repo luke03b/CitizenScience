@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import '../providers/app_state_provider.dart';
@@ -8,6 +9,7 @@ import '../l10n/app_locale.dart';
 import '../utils/error_handler.dart';
 import 'registration_screen.dart';
 import 'main_layout_screen.dart';
+import '../widgets/themed_logo.dart';
 
 /// Login screen for user authentication.
 ///
@@ -88,11 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Logo
-                    Icon(
-                      Icons.science,
-                      size: 80,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    ThemedLogo(width: 80, height: 80, fit: BoxFit.contain),
                     const SizedBox(height: 16),
                     Text(
                       AppLocale.citizenScience.getString(context),
